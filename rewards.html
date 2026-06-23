@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Tido"/>
+<meta name="theme-color" content="#7F77DD"/>
+<title>Tido — Rewards</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --mum:#7F77DD;--mum-s:#EEEDFE;--mum-d:#3C3489;
+  --dad:#1D9E75;--dad-s:#E1F5EE;--dad-d:#085041;
+  --sophie:#D05A8A;--sophie-s:#FBEAF0;--sophie-d:#72243E;
+  --olivia:#9B6FD4;--olivia-s:#F0EBFB;--olivia-d:#5B3A8A;
+  --acc:#7F77DD;--acc-s:#EEEDFE;--acc-d:#3C3489;
+  --glass:rgba(255,255,255,0.72);
+  --gb:rgba(180,160,220,0.2);
+  --tx:#3a3060;--txs:#9088b0;--txh:#c0b8d8;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:linear-gradient(160deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%);}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;color:var(--tx);display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:inherit;z-index:-1;}
+
+/* ── Layout ── */
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+.top-bar{background:var(--glass);border-bottom:0.5px solid var(--gb);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 16px 14px;flex-shrink:0;}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 0;}
+.scroll-area::-webkit-scrollbar{display:none;}
+.bottom-bar{background:var(--glass);border-top:0.5px solid var(--gb);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
+
+/* ── User switcher ── */
+.user-switcher{display:flex;gap:6px;margin-bottom:12px;}
+.ubtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;padding:5px 4px;border-radius:14px;transition:background 0.15s;font-family:inherit;}
+.ubtn:hover,.ubtn.active{background:rgba(255,255,255,0.85);}
+.av-wrap{position:relative;width:40px;height:40px;}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;border:2.5px solid rgba(255,255,255,0.4);transition:transform 0.18s,border-color 0.18s;}
+.ubtn.active .av{transform:scale(1.08);border-color:#fff;}
+.badge-icon{position:absolute;bottom:-1px;right:-4px;font-size:13px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.12));}
+.uname{font-size:11px;color:var(--txs);font-weight:400;transition:color 0.15s;}
+.ubtn.active .uname{color:var(--acc);font-weight:600;}
+
+/* ── Greeting ── */
+.greeting{display:flex;align-items:center;justify-content:space-between;}
+.g-left .g-date{font-size:11px;color:var(--txh);margin-bottom:2px;}
+.g-left .g-name{font-size:20px;font-weight:600;color:var(--tx);letter-spacing:-0.2px;}
+.xp-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.8);border:0.5px solid var(--gb);border-radius:20px;padding:6px 12px;cursor:pointer;transition:background 0.15s;}
+.xp-chip:hover{background:#fff;}
+.xp-chip i{font-size:14px;color:var(--acc);}
+.xp-chip span{font-size:13px;font-weight:700;color:var(--acc-d);}
+
+/* ── Tab bar ── */
+.tab-bar{display:flex;border-bottom:0.5px solid rgba(180,160,220,0.15);background:rgba(255,255,255,0.4);}
+.tbtab{flex:1;padding:9px 4px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:var(--txs);border-bottom:2px solid transparent;transition:color 0.15s;position:relative;}
+.tbtab.active{color:var(--acc);font-weight:700;border-bottom-color:var(--acc);}
+.notif-dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:#E24B4A;}
+
+/* ── Cards ── */
+.card{background:var(--glass);border-radius:16px;border:0.5px solid var(--gb);overflow:hidden;margin-bottom:12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.card-hdr{padding:10px 14px;border-bottom:0.5px solid rgba(180,160,220,0.12);font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.07em;}
+.card-hdr.warn{background:#FFF7ED;color:#854F0B;border-bottom-color:rgba(224,140,80,0.2);}
+.card-hdr.info{background:var(--acc-s);color:var(--acc-d);border-bottom-color:rgba(127,119,221,0.2);}
+.row-sep{border-bottom:0.5px solid rgba(180,160,220,0.09);}
+
+/* ── Screen time ── */
+.st-body{padding:10px 14px 14px;}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.prog-label{font-size:13px;font-weight:600;color:var(--tx);}
+.prog-pct{font-size:11px;color:var(--txs);}
+.prog-track{height:10px;background:rgba(180,160,220,0.18);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.prog-fill{height:100%;border-radius:10px;background:var(--acc);transition:width 0.5s;}
+.unlock-banner{display:flex;align-items:center;gap:8px;background:var(--acc-s);border-radius:10px;padding:8px 12px;}
+.unlock-banner i{font-size:16px;color:var(--acc);}
+.unlock-banner span{font-size:13px;font-weight:600;color:var(--acc-d);}
+.st-hint{font-size:12px;color:var(--txs);}
+
+/* ── Goals ── */
+.goal-row{display:flex;align-items:center;gap:11px;padding:11px 14px;}
+.goal-icon{width:42px;height:42px;border-radius:12px;background:var(--acc-s);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.goal-info{flex:1;min-width:0;}
+.goal-title{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:4px;}
+.goal-prog{display:flex;align-items:center;gap:6px;}
+.goal-track{flex:1;height:5px;background:rgba(180,160,220,0.18);border-radius:5px;overflow:hidden;}
+.goal-fill{height:100%;border-radius:5px;background:var(--acc);}
+.goal-xp{font-size:11px;color:var(--txs);white-space:nowrap;}
+.claim-btn{border:none;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.15s;flex-shrink:0;}
+.claim-btn.ready{background:var(--acc);color:#fff;}
+.claim-btn.saving{background:rgba(180,160,220,0.18);color:var(--txs);cursor:default;}
+.pending-tag{font-size:10px;background:#FAEEDA;color:#633806;border-radius:6px;padding:1px 6px;font-weight:700;margin-left:5px;}
+.add-goal-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;border:none;background:none;cursor:pointer;font-family:inherit;width:100%;font-size:13px;color:var(--acc);font-weight:600;border-top:0.5px solid rgba(180,160,220,0.1);}
+.add-goal-btn i{font-size:18px;}
+
+/* ── Badges ── */
+.badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px;}
+.badge-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.badge-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;border:2px solid transparent;transition:transform 0.15s;}
+.badge-circle:hover{transform:scale(1.08);}
+.badge-circle.earned{background:var(--acc-s);border-color:var(--acc);}
+.badge-circle.locked{background:rgba(180,160,220,0.08);border-color:rgba(180,160,220,0.15);filter:grayscale(1);opacity:0.38;}
+.badge-name{font-size:9px;color:var(--txs);text-align:center;line-height:1.3;}
+.badge-circle.earned+.badge-name{color:var(--acc-d);font-weight:600;}
+
+/* ── Add goal form ── */
+.form-pad{padding:14px;}
+.form-title{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:14px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;}
+.field input[type=text]{width:100%;border:0.5px solid rgba(180,160,220,0.35);border-radius:11px;padding:10px 13px;font-size:15px;background:rgba(255,255,255,0.8);color:var(--tx);font-family:inherit;outline:none;transition:border-color 0.15s;}
+.field input:focus{border-color:var(--acc);background:#fff;}
+.emoji-row{display:flex;gap:7px;flex-wrap:wrap;}
+.emo{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;background:rgba(255,255,255,0.6);border:0.5px solid rgba(180,160,220,0.2);transition:all 0.12s;}
+.emo.sel{background:var(--acc-s);border-color:var(--acc);}
+.xp-ctrl{display:flex;align-items:center;gap:10px;}
+.xp-ctrl input[type=range]{flex:1;accent-color:var(--acc);}
+.xp-ctrl-val{font-size:15px;font-weight:700;color:var(--acc);min-width:52px;text-align:right;}
+.kid-note{background:var(--acc-s);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--acc-d);font-weight:500;margin-bottom:12px;}
+.btn-row{display:flex;gap:8px;}
+.btn{flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.12s;}
+.btn:active{opacity:0.8;}
+.btn-primary{background:var(--acc);color:#fff;}
+.btn-cancel{background:rgba(240,238,248,0.9);color:var(--txs);border:0.5px solid rgba(180,160,220,0.25);}
+
+/* ── Admin: PIN ── */
+.pin-wrap{padding:20px 16px 24px;text-align:center;}
+.pin-title{font-size:17px;font-weight:700;color:var(--tx);margin-bottom:4px;}
+.pin-sub{font-size:12px;color:var(--txs);margin-bottom:16px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:18px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:rgba(180,160,220,0.22);transition:background 0.15s;}
+.pin-dot.filled{background:var(--acc);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:230px;margin:0 auto;}
+.pkey{padding:14px;border-radius:14px;border:0.5px solid rgba(180,160,220,0.2);background:rgba(255,255,255,0.85);font-size:20px;font-weight:600;color:var(--tx);cursor:pointer;font-family:inherit;transition:background 0.1s;}
+.pkey:hover{background:#fff;}
+.pkey.sm{font-size:13px;color:var(--txs);}
+
+/* ── Admin: panels ── */
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;}
+.admin-left{display:flex;align-items:center;gap:10px;}
+.admin-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.admin-name{font-size:13px;font-weight:600;color:var(--tx);}
+.admin-sub{font-size:11px;color:var(--txs);}
+.adj-btns{display:flex;gap:6px;}
+.adj{width:30px;height:30px;border-radius:9px;border:none;font-size:17px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.adj.plus{background:var(--acc-s);color:var(--acc-d);}
+.adj.minus{background:#fde8e8;color:#a32d2d;}
+.approve-row{padding:10px 14px;}
+.approve-btns{display:flex;gap:7px;margin-top:8px;}
+.abtn{flex:1;padding:7px 10px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.abtn.approve{background:#1D9E75;color:#fff;}
+.abtn.decline{background:rgba(180,160,220,0.18);color:var(--txs);}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;}
+.tog-label{font-size:13px;color:var(--tx);}
+.tog{width:36px;height:21px;background:rgba(180,160,220,0.22);border-radius:11px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.tog.on{background:var(--acc);}
+.tok{width:17px;height:17px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.2s;pointer-events:none;}
+.tog.on .tok{transform:translateX(15px);}
+.honour-btn{border:none;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--acc);color:#fff;flex-shrink:0;}
+.lock-btn{width:100%;margin-bottom:12px;padding:12px;border-radius:12px;border:0.5px solid rgba(180,160,220,0.25);background:rgba(240,238,248,0.9);color:var(--txs);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+/* ── Celebration overlay ── */
+.celebrate{position:fixed;inset:0;background:rgba(60,48,100,0.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.celebrate-box{background:#fff;border-radius:24px;padding:28px 22px;text-align:center;max-width:300px;width:100%;box-shadow:0 12px 40px rgba(60,48,100,0.22);}
+.celebrate-icon{font-size:56px;margin-bottom:10px;display:block;}
+.celebrate-title{font-size:20px;font-weight:700;color:var(--tx);margin-bottom:8px;}
+.celebrate-msg{font-size:14px;color:var(--txs);line-height:1.5;margin-bottom:14px;}
+.celebrate-tip{background:var(--acc-s);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--acc-d);font-weight:600;margin-bottom:16px;}
+.celebrate-close{width:100%;padding:13px;border-radius:12px;border:none;background:var(--acc);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+/* ── Toast ── */
+.toast{position:fixed;top:calc(var(--safe-top) + 70px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--acc);color:#fff;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Nav ── */
+.nav-inner{display:flex;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;padding:4px;font-family:inherit;}
+.nb i{font-size:21px;color:var(--txh);}
+.nb span{font-size:10px;color:var(--txh);}
+.nb.active i,.nb.active span{color:var(--acc);}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:28px 16px;color:var(--txh);font-size:14px;}
+.empty i{font-size:32px;display:block;margin-bottom:8px;opacity:0.35;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="user-switcher" id="switcher">
+      <button class="ubtn active" data-u="mum" onclick="setUser('mum')">
+        <div class="av-wrap"><div class="av" style="background:var(--mum)">M</div></div>
+        <span class="uname">Mum</span>
+      </button>
+      <button class="ubtn" data-u="dad" onclick="setUser('dad')">
+        <div class="av-wrap"><div class="av" style="background:var(--dad)">D</div></div>
+        <span class="uname">Dad</span>
+      </button>
+      <button class="ubtn" data-u="sophie" onclick="setUser('sophie')">
+        <div class="av-wrap"><div class="av" style="background:var(--sophie)">S</div><span class="badge-icon">🐱</span></div>
+        <span class="uname">Sophie</span>
+      </button>
+      <button class="ubtn" data-u="olivia" onclick="setUser('olivia')">
+        <div class="av-wrap"><div class="av" style="background:var(--olivia)">O</div><span class="badge-icon">🌸</span></div>
+        <span class="uname">Olivia</span>
+      </button>
+    </div>
+    <div class="greeting">
+      <div class="g-left">
+        <div class="g-date" id="g-date"></div>
+        <div class="g-name" id="g-name">Good morning, Mum</div>
+      </div>
+      <div class="xp-chip">
+        <i class="ti ti-star"></i>
+        <span id="g-xp">1,240 XP</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar" id="tab-bar"></div>
+
+  <div class="scroll-area" id="main-content"></div>
+
+  <div class="bottom-bar">
+    <div class="nav-inner">
+      <button class="nb" onclick="goPage('tasks')" aria-label="Tasks"><i class="ti ti-check"></i><span>Tasks</span></button>
+      <button class="nb active" aria-label="Rewards"><i class="ti ti-gift"></i><span>Rewards</span></button>
+      <button class="nb" onclick="goPage('calendar')" aria-label="Calendar"><i class="ti ti-calendar"></i><span>Calendar</span></button>
+      <button class="nb" onclick="goPage('settings')" aria-label="Settings"><i class="ti ti-settings"></i><span>Settings</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Celebration overlay -->
+<div class="celebrate" id="celebrate" style="display:none">
+  <div class="celebrate-box">
+    <span class="celebrate-icon" id="cel-icon">🎉</span>
+    <div class="celebrate-title">Reward claimed!</div>
+    <div class="celebrate-msg" id="cel-msg">You earned this — well done!</div>
+    <div class="celebrate-tip">💡 Show this screen to Mum or Dad to collect your reward!</div>
+    <button class="celebrate-close" onclick="closeCelebrate()">Woohoo! Close 🎊</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── Config ─── */
+const USERS = {
+  mum:    {name:'Mum',   greet:'Good morning', emoji:'',   color:'#7F77DD',soft:'#EEEDFE',dark:'#3C3489',isKid:false},
+  dad:    {name:'Dad',   greet:'Good morning', emoji:'',   color:'#1D9E75',soft:'#E1F5EE',dark:'#085041',isKid:false},
+  sophie: {name:'Sophie',greet:'Morning',      emoji:'🐱', color:'#D05A8A',soft:'#FBEAF0',dark:'#72243E',isKid:true},
+  olivia: {name:'Olivia',greet:'Morning',      emoji:'🌸', color:'#9B6FD4',soft:'#F0EBFB',dark:'#5B3A8A',isKid:true},
+};
+
+const SEED_GOALS = {
+  mum:   [{id:'m1',title:'Relaxing bath night',icon:'🛁',cost:300},{id:'m2',title:'Pick the family movie',icon:'🎬',cost:150},{id:'m3',title:'Date night',icon:'🌙',cost:500}],
+  dad:   [{id:'d1',title:'Pick the family movie',icon:'🎬',cost:150},{id:'d2',title:'Breakfast in bed',icon:'🍳',cost:250}],
+  sophie:[{id:'s1',title:'Extra screen time',icon:'🎮',cost:200},{id:'s2',title:'Choose Friday dinner',icon:'🍕',cost:150},{id:'s3',title:'New book',icon:'📚',cost:400,pending:true,suggestedBy:'sophie',note:"I've been reading lots!"}],
+  olivia:[{id:'o1',title:'New toy',icon:'🧸',cost:500},{id:'o2',title:'Ice cream treat',icon:'🍦',cost:100}],
+};
+
+const SCREEN = {sophie:{target:50,mins:45,today:35},olivia:{target:40,mins:30,today:28}};
+
+const ALL_BADGES = [
+  {id:'b1',e:'🔥',name:'7-day streak',   auto:true, earned:true},
+  {id:'b2',e:'⭐',name:'100 XP club',    auto:true, earned:true},
+  {id:'b3',e:'✅',name:'First task',     auto:true, earned:true},
+  {id:'b4',e:'🌅',name:'Early bird',     auto:true, earned:true},
+  {id:'b5',e:'🏆',name:'Perfect week',   auto:true, earned:false},
+  {id:'b6',e:'💫',name:'500 XP club',    auto:true, earned:false},
+  {id:'b7',e:'🎯',name:'10 tasks done',  auto:true, earned:false},
+  {id:'b8',e:'🎁',name:'First reward',   auto:true, earned:false},
+];
+
+const AUTO_BADGE_NAMES = ['7-day streak','Perfect week','100 XP milestone','Early bird','First goal claimed'];
+
+const EMOJIS = ['🎬','🛁','🍕','🎮','📚','🧸','🍦','🌙','💅','🎉','💰','🚲','🎨','🎵','🏖️','🌈'];
+
+/* ─── State ─── */
+let cur = 'mum';
+let tab = 'goals';
+let xp  = {};
+let goals = {};
+let claimed = []; // {id, title, icon, claimedBy, claimedByName, claimedAt, honoured}
+let badgeToggles = {};
+let pinEntry = '';
+let pinUnlocked = false;
+let addingGoal = false;
+let goalEmoji = '🎬';
+let goalCost  = 200;
+
+/* ─── Storage ─── */
+function save() {
+  try {
+    localStorage.setItem('tido_xp',      JSON.stringify(xp));
+    localStorage.setItem('tido_goals',   JSON.stringify(goals));
+    localStorage.setItem('tido_claimed', JSON.stringify(claimed));
+    localStorage.setItem('tido_btog',    JSON.stringify(badgeToggles));
+    localStorage.setItem('tido_cur',     cur);
+  } catch(e){}
+}
+
+function load() {
+  try {
+    xp      = JSON.parse(localStorage.getItem('tido_xp'))      || {mum:1240,dad:980,sophie:620,olivia:410};
+    goals   = JSON.parse(localStorage.getItem('tido_goals'))   || JSON.parse(JSON.stringify(SEED_GOALS));
+    claimed = JSON.parse(localStorage.getItem('tido_claimed')) || [];
+    badgeToggles = JSON.parse(localStorage.getItem('tido_btog')) || {'7-day streak':true,'Perfect week':true,'100 XP milestone':true,'Early bird':false,'First goal claimed':true};
+    cur     = localStorage.getItem('tido_cur') || 'mum';
+  } catch(e) {
+    xp = {mum:1240,dad:980,sophie:620,olivia:410};
+    goals = JSON.parse(JSON.stringify(SEED_GOALS));
+    claimed = [];
+    badgeToggles = {'7-day streak':true,'Perfect week':true,'100 XP milestone':true,'Early bird':false,'First goal claimed':true};
+  }
+}
+
+/* ─── Accent ─── */
+function applyAccent(u) {
+  const usr = USERS[u];
+  document.documentElement.style.setProperty('--acc',   usr.color);
+  document.documentElement.style.setProperty('--acc-s', usr.soft);
+  document.documentElement.style.setProperty('--acc-d', usr.dark);
+}
+
+/* ─── Date / greeting ─── */
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+function formatDate() {
+  return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+}
+
+/* ─── Switch user ─── */
+function setUser(u) {
+  cur = u; addingGoal = false;
+  applyAccent(u);
+  document.querySelectorAll('.ubtn').forEach(b => b.classList.toggle('active', b.dataset.u===u));
+  const usr = USERS[u];
+  const suffix = usr.emoji ? ' ' + usr.emoji + '!' : '!';
+  document.getElementById('g-name').textContent = (greeting() === 'Good morning' ? greeting() : greeting()) + ', ' + usr.name + suffix;
+  document.getElementById('g-xp').textContent   = (xp[u]||0).toLocaleString() + ' XP';
+  document.getElementById('g-date').textContent  = formatDate();
+  tab = 'goals';
+  renderTabBar();
+  render();
+  save();
+}
+
+/* ─── Tab bar ─── */
+function renderTabBar() {
+  const usr = USERS[cur];
+  const tabs = [
+    ['goals', '🎁 Goals'],
+    ...(usr.isKid ? [['badges','🏅 Badges']] : []),
+    ['admin', '🛡 Admin'],
+  ];
+  const pending  = allPending().length;
+  const unhonour = claimed.filter(c=>!c.honoured).length;
+  const adminAlert = pending + unhonour;
+
+  document.getElementById('tab-bar').innerHTML = tabs.map(([id,label]) => `
+    <button class="tbtab ${tab===id?'active':''}" onclick="setTab('${id}')">
+      ${label}
+      ${id==='admin' && adminAlert > 0 ? '<span class="notif-dot"></span>' : ''}
+    </button>
+  `).join('');
+}
+
+function setTab(t) {
+  tab = t; addingGoal = false;
+  renderTabBar();
+  render();
+}
+
+/* ─── Helpers ─── */
+function allPending() {
+  return Object.entries(goals).flatMap(([uid,gs]) =>
+    (gs||[]).filter(g=>g.pending&&g.suggestedBy).map(g=>({...g,ownerUid:uid,ownerName:USERS[uid].name,ownerColor:USERS[uid].color}))
+  );
+}
+
+/* ─── Main render ─── */
+function render() {
+  const content = document.getElementById('main-content');
+  if (addingGoal)     { content.innerHTML = renderAddGoal(); return; }
+  if (tab==='goals')  { content.innerHTML = renderGoals();   return; }
+  if (tab==='badges') { content.innerHTML = renderBadges();  return; }
+  if (tab==='admin')  { content.innerHTML = renderAdmin();   return; }
+}
+
+/* ─── Goals view ─── */
+function renderGoals() {
+  const u = USERS[cur];
+  const myGoals = goals[cur] || [];
+  const myXp = xp[cur] || 0;
+  let html = '';
+
+  // Screen time (kids only)
+  if (u.isKid && SCREEN[cur]) {
+    const sc  = SCREEN[cur];
+    const pct = Math.min(100, Math.round(sc.today / sc.target * 100));
+    const ok  = sc.today >= sc.target;
+    html += `<div class="card">
+      <div class="card-hdr"><i class="ti ti-device-tv" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Today's screen time</div>
+      <div class="st-body">
+        <div class="prog-row"><span class="prog-label">${sc.today} / ${sc.target} XP today</span><span class="prog-pct">${pct}%</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+        ${ok
+          ? `<div class="unlock-banner"><i class="ti ti-clock"></i><span>🎉 ${sc.mins} mins screen time unlocked!</span></div>`
+          : `<div class="st-hint">Earn ${sc.target - sc.today} more XP to unlock ${sc.mins} mins screen time</div>`}
+      </div>
+    </div>`;
+  }
+
+  // Goals list
+  html += `<div class="card"><div class="card-hdr"><i class="ti ti-gift" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Reward goals</div>`;
+
+  if (!myGoals.length) {
+    html += `<div class="empty"><i class="ti ti-gift"></i>No goals yet — add one below!</div>`;
+  }
+
+  myGoals.forEach(g => {
+    const pct = Math.min(100, Math.round(myXp / g.cost * 100));
+    const can = myXp >= g.cost && !g.pending;
+    html += `<div class="goal-row row-sep">
+      <div class="goal-icon">${g.icon}</div>
+      <div class="goal-info">
+        <div class="goal-title">${g.title}${g.pending ? '<span class="pending-tag">Pending approval</span>' : ''}</div>
+        <div class="goal-prog">
+          <div class="goal-track"><div class="goal-fill" style="width:${pct}%"></div></div>
+          <span class="goal-xp">${myXp.toLocaleString()} / ${g.cost} XP</span>
+        </div>
+      </div>
+      ${g.pending
+        ? `<span style="font-size:11px;color:var(--txs)">Awaiting</span>`
+        : `<button class="claim-btn ${can?'ready':'saving'}" onclick="${can ? `claimGoal('${g.id}')` : `showToast('${g.cost - myXp} more XP to go!')`}">${can ? 'Claim! 🎉' : 'Saving…'}</button>`
+      }
+    </div>`;
+  });
+
+  html += `<button class="add-goal-btn" onclick="openAddGoal()"><i class="ti ti-plus"></i>${u.isKid ? 'Suggest a reward…' : 'Add a reward goal…'}</button></div>`;
+  return html;
+}
+
+/* ─── Badges view ─── */
+function renderBadges() {
+  let html = `<div class="card"><div class="card-hdr"><i class="ti ti-award" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Badges</div><div class="badge-grid">`;
+  ALL_BADGES.forEach(b => {
+    html += `<div class="badge-item">
+      <div class="badge-circle ${b.earned?'earned':'locked'}">${b.e}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+/* ─── Add goal view ─── */
+function renderAddGoal() {
+  const u = USERS[cur];
+  const emojis = EMOJIS.map(e => `<div class="emo ${e===goalEmoji?'sel':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');
+  return `<div class="card">
+    <div class="form-pad">
+      <div class="form-title">${u.isKid ? '💌 Suggest a reward' : '🎯 New reward goal'}</div>
+      <div class="field">
+        <label>Goal name</label>
+        <input type="text" id="g-name-input" placeholder="e.g. Movie night pick" value=""/>
+      </div>
+      <div class="field">
+        <label>Icon</label>
+        <div class="emoji-row">${emojis}</div>
+      </div>
+      <div class="field">
+        <label>XP cost — <span id="xp-cost-lbl" style="color:var(--acc);font-weight:700">${goalCost} XP</span></label>
+        <div class="xp-ctrl">
+          <input type="range" min="50" max="1000" step="50" value="${goalCost}" oninput="goalCost=parseInt(this.value);document.getElementById('xp-cost-lbl').textContent=goalCost+' XP'"/>
+        </div>
+      </div>
+      ${u.isKid ? `<div class="kid-note">💡 Your suggestion will go to Mum or Dad to approve before it appears on your list.</div>` : ''}
+      <div class="btn-row">
+        <button class="btn btn-cancel" onclick="cancelAddGoal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitGoal()">${u.isKid ? 'Send suggestion' : 'Add goal'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ─── Admin view ─── */
+function renderAdmin() {
+  if (!pinUnlocked) return renderPin();
+
+  const pending    = allPending();
+  const unhonoured = claimed.filter(c => !c.honoured);
+  let html = '';
+
+  // Pending suggestions
+  if (pending.length) {
+    html += `<div class="card"><div class="card-hdr warn"><i class="ti ti-clock" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Pending approval (${pending.length})</div>`;
+    pending.forEach(g => {
+      html += `<div class="approve-row row-sep">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:38px;height:38px;border-radius:10px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${g.icon}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx)">${g.title}</div>
+            <div style="font-size:11px;color:var(--txs)">From <strong style="color:${g.ownerColor}">${g.ownerName}</strong> · ${g.cost} XP cost</div>
+            ${g.note ? `<div style="font-size:11px;color:#854F0B;font-style:italic;margin-top:2px">"${g.note}"</div>` : ''}
+          </div>
+        </div>
+        <div class="approve-btns">
+          <button class="abtn decline" onclick="declineGoal('${g.ownerUid}','${g.id}')">Decline</button>
+          <button class="abtn approve" onclick="approveGoal('${g.ownerUid}','${g.id}')">Approve ✓</button>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Rewards to honour
+  if (unhonoured.length) {
+    html += `<div class="card"><div class="card-hdr info"><i class="ti ti-gift" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Rewards to honour (${unhonoured.length})</div>`;
+    unhonoured.forEach(c => {
+      html += `<div class="admin-row row-sep">
+        <div class="admin-left">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--acc-s);display:flex;align-items:center;justify-content:center;font-size:18px">${c.icon}</div>
+          <div>
+            <div class="admin-name">${c.title}</div>
+            <div class="admin-sub">Claimed by <strong style="color:${USERS[c.claimedBy].color}">${c.claimedByName}</strong> · ${c.claimedAt}</div>
+          </div>
+        </div>
+        <button class="honour-btn" onclick="honourClaim('${c.id}')">Done ✓</button>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // XP balances
+  html += `<div class="card"><div class="card-hdr"><i class="ti ti-star" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>XP balances</div>`;
+  Object.entries(USERS).forEach(([uid, usr]) => {
+    html += `<div class="admin-row row-sep">
+      <div class="admin-left">
+        <div class="admin-av" style="background:${usr.color}">${usr.name[0]}</div>
+        <div>
+          <div class="admin-name">${usr.name} ${usr.emoji}</div>
+          <div class="admin-sub" id="axp-${uid}">${(xp[uid]||0).toLocaleString()} XP</div>
+        </div>
+      </div>
+      <div class="adj-btns">
+        <button class="adj plus" onclick="adjXP('${uid}',25)">+</button>
+        <button class="adj minus" onclick="adjXP('${uid}',-25)">−</button>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Screen time
+  html += `<div class="card"><div class="card-hdr"><i class="ti ti-device-tv" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Screen time targets</div>`;
+  ['sophie','olivia'].forEach(uid => {
+    const sc = SCREEN[uid];
+    html += `<div class="admin-row row-sep">
+      <div class="admin-left">
+        <div class="admin-av" style="background:${USERS[uid].color}">${USERS[uid].name[0]}</div>
+        <div class="admin-name">${USERS[uid].name}</div>
+      </div>
+      <span style="font-size:12px;color:var(--txs)">${sc.target} XP → ${sc.mins} mins</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Auto badges
+  html += `<div class="card"><div class="card-hdr"><i class="ti ti-award" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Auto badges</div>`;
+  AUTO_BADGE_NAMES.forEach(b => {
+    const on = badgeToggles[b] !== false;
+    html += `<div class="tog-row row-sep">
+      <span class="tog-label">${b}</span>
+      <div class="tog ${on?'on':''}" onclick="toggleBadge('${b}')"><div class="tok"></div></div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<button class="lock-btn" onclick="lockAdmin()"><i class="ti ti-lock" style="font-size:14px;margin-right:4px;vertical-align:-2px"></i>Lock admin</button>`;
+  return html;
+}
+
+/* ─── PIN view ─── */
+function renderPin() {
+  const dots = [0,1,2,3].map(i => `<div class="pin-dot ${i < pinEntry.length ? 'filled' : ''}"></div>`).join('');
+  return `<div class="card"><div class="pin-wrap">
+    <div class="pin-title">Parent admin</div>
+    <div class="pin-sub">Enter your PIN to continue<br><strong>Demo PIN: 1234</strong></div>
+    <div class="pin-dots">${dots}</div>
+    <div class="pin-pad">
+      ${['1','2','3','4','5','6','7','8','9'].map(k=>`<button class="pkey" onclick="pinKey('${k}')">${k}</button>`).join('')}
+      <button class="pkey sm" onclick="setTab('goals')">Cancel</button>
+      <button class="pkey" onclick="pinKey('0')">0</button>
+      <button class="pkey sm" onclick="pinDel()">⌫</button>
+    </div>
+  </div></div>`;
+}
+
+/* ─── Actions ─── */
+function claimGoal(id) {
+  const g = (goals[cur]||[]).find(x=>x.id===id);
+  if (!g || (xp[cur]||0) < g.cost) return;
+  xp[cur] = (xp[cur]||0) - g.cost;
+  goals[cur] = goals[cur].filter(x => x.id !== id);
+  const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  claimed.unshift({id:'c'+Date.now(), title:g.title, icon:g.icon, claimedBy:cur, claimedByName:USERS[cur].name, claimedAt:now, honoured:false});
+  document.getElementById('g-xp').textContent = (xp[cur]||0).toLocaleString() + ' XP';
+  // Show celebration
+  document.getElementById('cel-icon').textContent = g.icon;
+  document.getElementById('cel-msg').textContent = `You earned "${g.title}" — well done!`;
+  document.getElementById('celebrate').style.display = 'flex';
+  save();
+  render();
+}
+
+function closeCelebrate() {
+  document.getElementById('celebrate').style.display = 'none';
+}
+
+function openAddGoal() {
+  addingGoal = true; goalEmoji = '🎬'; goalCost = 200;
+  render();
+}
+
+function cancelAddGoal() {
+  addingGoal = false; render();
+}
+
+function pickEmoji(e) {
+  goalEmoji = e;
+  document.querySelectorAll('.emo').forEach(el => el.classList.toggle('sel', el.textContent===e));
+}
+
+function submitGoal() {
+  const input = document.getElementById('g-name-input');
+  if (!input) return;
+  const title = input.value.trim();
+  if (!title) { input.focus(); return; }
+  const u = USERS[cur];
+  const ng = {id:'u'+Date.now(), title, icon:goalEmoji, cost:goalCost, ...(u.isKid && {pending:true, suggestedBy:cur, note:''})};
+  if (!goals[cur]) goals[cur] = [];
+  goals[cur].push(ng);
+  addingGoal = false;
+  save();
+  showToast(u.isKid ? '💌 Suggestion sent to parents!' : '✓ Goal added!');
+  render();
+}
+
+function approveGoal(ownerUid, id) {
+  goals[ownerUid] = (goals[ownerUid]||[]).map(g => g.id===id ? {...g, pending:false, suggestedBy:undefined, note:undefined} : g);
+  save(); showToast('Goal approved ✓'); renderTabBar(); render();
+}
+
+function declineGoal(ownerUid, id) {
+  goals[ownerUid] = (goals[ownerUid]||[]).filter(g => g.id !== id);
+  save(); showToast('Goal declined'); renderTabBar(); render();
+}
+
+function honourClaim(id) {
+  claimed = claimed.map(c => c.id===id ? {...c, honoured:true} : c);
+  save(); showToast('Reward honoured ✓'); renderTabBar(); render();
+}
+
+function adjXP(uid, amt) {
+  xp[uid] = Math.max(0, (xp[uid]||0) + amt);
+  if (uid === cur) document.getElementById('g-xp').textContent = (xp[uid]||0).toLocaleString() + ' XP';
+  const el = document.getElementById('axp-'+uid);
+  if (el) el.textContent = (xp[uid]||0).toLocaleString() + ' XP';
+  save(); showToast((amt>0?'+':'')+amt+' XP → '+USERS[uid].name);
+}
+
+function toggleBadge(b) {
+  badgeToggles[b] = !badgeToggles[b];
+  save(); render();
+}
+
+function pinKey(k) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += k;
+  render();
+  if (pinEntry.length === 4) {
+    if (pinEntry === '1234') { setTimeout(()=>{ pinUnlocked=true; pinEntry=''; renderTabBar(); render(); }, 200); }
+    else                     { setTimeout(()=>{ pinEntry=''; showToast('Incorrect PIN'); render(); }, 300); }
+  }
+}
+
+function pinDel() { pinEntry = pinEntry.slice(0,-1); render(); }
+
+function lockAdmin() { pinUnlocked=false; pinEntry=''; setTab('goals'); }
+
+function goPage(p) { showToast(p.charAt(0).toUpperCase()+p.slice(1)+' coming soon!'); }
+
+/* ─── Toast ─── */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2400);
+}
+
+/* ─── Service worker ─── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+
+/* ─── Boot ─── */
+load();
+setUser(cur);
+</script>
+</body>
+</html>
