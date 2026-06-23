@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Tido"/>
+<meta name="theme-color" content="#7F77DD"/>
+<title>Tido</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --mum:#7F77DD;--mum-soft:#EEEDFE;--mum-dark:#3C3489;
+  --dad:#1D9E75;--dad-soft:#E1F5EE;--dad-dark:#085041;
+  --sophie:#D05A8A;--sophie-soft:#FBEAF0;--sophie-dark:#72243E;
+  --olivia:#9B6FD4;--olivia-soft:#F0EBFB;--olivia-dark:#5B3A8A;
+  --accent:#7F77DD;--accent-soft:#EEEDFE;--accent-dark:#3C3489;
+  --bg-grad:linear-gradient(160deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%);
+  --glass:rgba(255,255,255,0.68);
+  --glass-border:rgba(180,160,220,0.2);
+  --text-primary:#3a3060;
+  --text-secondary:#9088b0;
+  --text-hint:#b8b0d0;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg-grad);}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;color:var(--text-primary);display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);z-index:-1;}
+
+/* ── Layout shells ── */
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+.top-bar{background:var(--glass);border-bottom:0.5px solid var(--glass-border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 16px 14px;flex-shrink:0;}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 0;}
+.scroll-area::-webkit-scrollbar{display:none;}
+.bottom-bar{background:var(--glass);border-top:0.5px solid var(--glass-border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
+
+/* ── User switcher ── */
+.user-switcher{display:flex;gap:6px;margin-bottom:14px;}
+.user-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;padding:5px 4px;border-radius:14px;transition:background 0.15s;}
+.user-btn:hover,.user-btn:focus-visible{background:rgba(255,255,255,0.5);outline:none;}
+.user-btn.active{background:rgba(255,255,255,0.78);}
+.av-wrap{position:relative;width:42px;height:42px;}
+.avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;border:2.5px solid rgba(255,255,255,0.5);transition:transform 0.18s,border-color 0.18s;}
+.user-btn.active .avatar{transform:scale(1.09);border-color:#fff;}
+.badge-icon{position:absolute;bottom:-1px;right:-4px;font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.15));}
+.uname{font-size:11px;color:var(--text-secondary);font-weight:400;transition:color 0.15s;}
+.user-btn.active .uname{color:var(--accent);font-weight:500;}
+
+/* ── Greeting ── */
+.greeting{display:flex;align-items:center;justify-content:space-between;}
+.g-left .g-date{font-size:11px;color:var(--text-hint);margin-bottom:2px;}
+.g-left .g-name{font-size:21px;font-weight:600;color:var(--text-primary);letter-spacing:-0.3px;}
+.xp-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.75);border:0.5px solid var(--glass-border);border-radius:20px;padding:6px 12px;cursor:pointer;transition:background 0.15s;}
+.xp-chip:hover{background:#fff;}
+.xp-chip i{font-size:14px;color:var(--accent);}
+.xp-chip span{font-size:13px;font-weight:600;color:var(--accent-dark);}
+
+/* ── Section labels ── */
+.section-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
+.section-count{font-size:11px;background:rgba(255,255,255,0.75);color:var(--accent-dark);border-radius:10px;padding:2px 9px;font-weight:600;border:0.5px solid var(--glass-border);}
+
+/* ── Task cards ── */
+.card{background:rgba(255,255,255,0.72);border-radius:16px;border:0.5px solid var(--glass-border);overflow:hidden;margin-bottom:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.task-row{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer;transition:background 0.12s;user-select:none;}
+.task-row:not(:last-child){border-bottom:0.5px solid rgba(180,160,220,0.12);}
+.task-row:hover{background:rgba(255,255,255,0.55);}
+.task-row:active{background:rgba(255,255,255,0.8);}
+.task-row.done-row{opacity:0.48;}
+
+/* ── Check circle ── */
+.check{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(160,140,210,0.38);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;background:transparent;}
+.check.done{background:var(--accent);border-color:var(--accent);}
+.check .ti{font-size:13px;color:transparent;transition:color 0.15s;}
+.check.done .ti{color:#fff;}
+
+/* ── Streak pill (left) ── */
+.streak-pill{display:flex;align-items:center;gap:2px;background:rgba(255,247,237,0.9);border-radius:10px;padding:3px 7px;border:0.5px solid rgba(224,140,80,0.18);flex-shrink:0;}
+.streak-pill .ti{font-size:12px;color:#E07B3A;}
+.streak-pill span{font-size:12px;font-weight:600;color:#854F0B;}
+.streak-zero{width:34px;flex-shrink:0;}
+
+/* ── Task info ── */
+.task-info{flex:1;min-width:0;}
+.task-title{font-size:15px;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;font-weight:400;}
+.task-title.done{text-decoration:line-through;color:var(--text-hint);}
+.task-sub{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;}
+.shared-tag{font-size:10px;color:var(--text-secondary);background:rgba(255,255,255,0.7);border-radius:6px;padding:1px 6px;border:0.5px solid var(--glass-border);}
+.due-tag{font-size:10px;color:var(--text-secondary);font-weight:500;}
+.due-tag.overdue{color:#C0392B;}
+
+/* ── XP pill (right) ── */
+.xp-pill{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.75);border:0.5px solid var(--glass-border);border-radius:10px;padding:3px 8px;flex-shrink:0;}
+.xp-pill .ti{font-size:11px;color:var(--accent);}
+.xp-pill span{font-size:12px;font-weight:600;color:var(--accent-dark);}
+
+/* ── Kid mode ── */
+.kid-mode .task-title{font-size:17px;}
+.kid-mode .check{width:30px;height:30px;}
+.kid-mode .check .ti{font-size:16px;}
+.kid-mode .streak-pill span{font-size:14px;}
+.kid-mode .xp-pill span{font-size:13px;}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:32px 20px;color:var(--text-hint);font-size:14px;}
+.empty-state i{font-size:36px;display:block;margin-bottom:8px;opacity:0.4;}
+
+/* ── FAB ── */
+.fab-wrap{display:flex;justify-content:flex-end;padding:10px 14px 14px;}
+.fab{width:52px;height:52px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s,opacity 0.15s;box-shadow:0 4px 16px rgba(127,119,221,0.35);}
+.fab:hover{transform:scale(1.07);}
+.fab:active{transform:scale(0.96);}
+.fab .ti{font-size:24px;color:#fff;}
+
+/* ── Bottom nav ── */
+.nav-inner{display:flex;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;padding:4px 0;}
+.nav-btn .ti{font-size:22px;color:var(--text-hint);}
+.nav-btn span{font-size:10px;color:var(--text-hint);}
+.nav-btn.active .ti,.nav-btn.active span{color:var(--accent);}
+
+/* ── Sheet overlay ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(60,48,100,0.3);z-index:100;display:none;align-items:flex-end;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+.sheet-overlay.open{display:flex;}
+.sheet{background:rgba(252,250,255,0.97);border-radius:24px 24px 0 0;padding:0 16px calc(16px + var(--safe-bottom));width:100%;max-height:92vh;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;background:rgba(180,160,220,0.35);border-radius:2px;margin:12px auto 16px;}
+.sheet-title{font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:16px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.field input[type=text],.field input[type=date],.field select{width:100%;border:0.5px solid rgba(180,160,220,0.35);border-radius:12px;padding:10px 13px;font-size:15px;background:rgba(255,255,255,0.8);color:var(--text-primary);font-family:inherit;outline:none;transition:border-color 0.15s,background 0.15s;-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--accent);background:#fff;}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{padding:6px 13px;border-radius:20px;border:0.5px solid rgba(180,160,220,0.3);font-size:13px;cursor:pointer;background:rgba(255,255,255,0.6);color:var(--text-secondary);transition:all 0.12s;white-space:nowrap;font-family:inherit;}
+.pill:hover{background:rgba(255,255,255,0.9);}
+.pill.on{background:var(--accent-soft);color:var(--accent-dark);border-color:var(--accent);font-weight:500;}
+.assign-row{display:flex;gap:12px;}
+.a-chip{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.a-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;border:2.5px solid transparent;opacity:0.35;transition:all 0.15s;}
+.a-chip.on .a-av{opacity:1;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.a-name{font-size:10px;color:var(--text-secondary);}
+.xp-row{display:flex;align-items:center;gap:10px;}
+.xp-row input[type=range]{flex:1;accent-color:var(--accent);}
+.xp-val{font-size:15px;font-weight:600;color:var(--accent);min-width:46px;text-align:right;}
+.btn-row{display:flex;gap:8px;margin-top:8px;}
+.btn{flex:1;padding:13px;border-radius:13px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.12s,transform 0.1s;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-cancel{background:rgba(240,238,248,0.8);color:var(--text-secondary);}
+.btn:hover{opacity:0.88;}
+
+/* ── XP toast ── */
+.toast{position:fixed;top:calc(var(--safe-top) + 70px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--accent);color:#fff;border-radius:20px;padding:8px 18px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Completed section toggle ── */
+.completed-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 0 10px;color:var(--text-secondary);font-size:12px;font-weight:500;border:none;background:none;font-family:inherit;}
+.completed-toggle .ti{font-size:14px;transition:transform 0.2s;}
+.completed-toggle.open .ti{transform:rotate(90deg);}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="user-switcher" id="switcher">
+      <button class="user-btn active" data-u="mum" onclick="switchUser('mum')">
+        <div class="av-wrap"><div class="avatar" id="av-mum" style="background:var(--mum)">M</div></div>
+        <span class="uname">Mum</span>
+      </button>
+      <button class="user-btn" data-u="dad" onclick="switchUser('dad')">
+        <div class="av-wrap"><div class="avatar" id="av-dad" style="background:var(--dad)">D</div></div>
+        <span class="uname">Dad</span>
+      </button>
+      <button class="user-btn" data-u="sophie" onclick="switchUser('sophie')">
+        <div class="av-wrap">
+          <div class="avatar" id="av-sophie" style="background:var(--sophie)">S</div>
+          <span class="badge-icon">🐱</span>
+        </div>
+        <span class="uname">Sophie</span>
+      </button>
+      <button class="user-btn" data-u="olivia" onclick="switchUser('olivia')">
+        <div class="av-wrap">
+          <div class="avatar" id="av-olivia" style="background:var(--olivia)">O</div>
+          <span class="badge-icon">🌸</span>
+        </div>
+        <span class="uname">Olivia</span>
+      </button>
+    </div>
+    <div class="greeting">
+      <div class="g-left">
+        <div class="g-date" id="g-date"></div>
+        <div class="g-name" id="g-name">Good morning, Mum</div>
+      </div>
+      <div class="xp-chip" onclick="showXpInfo()">
+        <i class="ti ti-star"></i>
+        <span id="g-xp">0 XP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll area -->
+  <div class="scroll-area" id="scroll-area">
+    <div id="task-list"></div>
+    <div class="fab-wrap">
+      <button class="fab" onclick="openSheet()" aria-label="Add task">
+        <i class="ti ti-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-bar">
+    <div class="nav-inner">
+      <button class="nav-btn active" aria-label="Tasks">
+        <i class="ti ti-check"></i>
+        <span>Tasks</span>
+      </button>
+      <button class="nav-btn" aria-label="Calendar" onclick="comingSoon('Calendar')">
+        <i class="ti ti-calendar"></i>
+        <span>Calendar</span>
+      </button>
+      <button class="nav-btn" aria-label="Family" onclick="comingSoon('Family')">
+        <i class="ti ti-users"></i>
+        <span>Family</span>
+      </button>
+      <button class="nav-btn" aria-label="Settings" onclick="comingSoon('Settings')">
+        <i class="ti ti-settings"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add task sheet -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="overlayClick(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">New task</div>
+
+    <div class="field">
+      <label>Task name</label>
+      <input type="text" id="f-title" placeholder="e.g. Take vitamins" autocomplete="off"/>
+    </div>
+
+    <div class="field">
+      <label>Type</label>
+      <div class="pill-row">
+        <div class="pill on" data-type="habit" onclick="setType('habit')">Habit — recurring</div>
+        <div class="pill" data-type="todo" onclick="setType('todo')">To-do — one off</div>
+      </div>
+    </div>
+
+    <div class="field" id="f-recur">
+      <label>Repeats</label>
+      <div class="pill-row">
+        <div class="pill on" data-recur="daily" onclick="setRecur('daily')">Daily</div>
+        <div class="pill" data-recur="weekdays" onclick="setRecur('weekdays')">Weekdays</div>
+        <div class="pill" data-recur="weekly" onclick="setRecur('weekly')">Weekly</div>
+      </div>
+    </div>
+
+    <div class="field" id="f-due" style="display:none">
+      <label>Due date</label>
+      <input type="date" id="f-date"/>
+    </div>
+
+    <div class="field">
+      <label>Assign to</label>
+      <div class="assign-row" id="assign-row">
+        <div class="a-chip on" data-a="mum" onclick="toggleAssign('mum')">
+          <div class="a-av" style="background:var(--mum)">M</div>
+          <span class="a-name">Mum</span>
+        </div>
+        <div class="a-chip" data-a="dad" onclick="toggleAssign('dad')">
+          <div class="a-av" style="background:var(--dad)">D</div>
+          <span class="a-name">Dad</span>
+        </div>
+        <div class="a-chip" data-a="sophie" onclick="toggleAssign('sophie')">
+          <div class="a-av" style="background:var(--sophie)">S</div>
+          <span class="a-name">Sophie</span>
+        </div>
+        <div class="a-chip" data-a="olivia" onclick="toggleAssign('olivia')">
+          <div class="a-av" style="background:var(--olivia)">O</div>
+          <span class="a-name">Olivia</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Visibility</label>
+      <div class="pill-row">
+        <div class="pill" data-vis="personal" onclick="setVis('personal')">Personal</div>
+        <div class="pill on" data-vis="shared" onclick="setVis('shared')">Shared</div>
+        <div class="pill" data-vis="parents" onclick="setVis('parents')">Parents only</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>XP reward — <span id="f-xp-lbl" style="color:var(--accent);font-weight:700">10 XP</span></label>
+      <div class="xp-row">
+        <input type="range" id="f-xp" min="0" max="50" step="5" value="10"
+          oninput="document.getElementById('f-xp-lbl').textContent=this.value+' XP'"/>
+      </div>
+    </div>
+
+    <div class="field" id="f-completion-wrap">
+      <label>When someone completes this shared task</label>
+      <div class="pill-row">
+        <div class="pill on" data-comp="all" onclick="setComp('all')">Done for everyone</div>
+        <div class="pill" data-comp="each" onclick="setComp('each')">Each person individually</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeSheet()">Cancel</button>
+      <button class="btn btn-primary" onclick="addTask()">Add task</button>
+    </div>
+  </div>
+</div>
+
+<!-- XP toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── Data ─── */
+const USERS = {
+  mum:    { name:'Mum',    greet:'Good morning',  xpKey:'xp_mum',    accent:'#7F77DD', soft:'#EEEDFE', dark:'#3C3489', isKid:false },
+  dad:    { name:'Dad',    greet:'Good morning',  xpKey:'xp_dad',    accent:'#1D9E75', soft:'#E1F5EE', dark:'#085041', isKid:false },
+  sophie: { name:'Sophie', greet:'Morning',       xpKey:'xp_sophie', accent:'#D05A8A', soft:'#FBEAF0', dark:'#72243E', isKid:true  },
+  olivia: { name:'Olivia', greet:'Morning',       xpKey:'xp_olivia', accent:'#9B6FD4', soft:'#F0EBFB', dark:'#5B3A8A', isKid:true  },
+};
+
+const EMOJI = { sophie:'🐱', olivia:'🌸' };
+
+const SEED_TASKS = [
+  { id:'s1', type:'habit', title:'Take supplements',    assignedTo:['mum'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{mum:14},   completedToday:[] },
+  { id:'s2', type:'habit', title:'Morning skincare',    assignedTo:['mum'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{mum:7},    completedToday:[] },
+  { id:'s3', type:'habit', title:'Exercise',            assignedTo:['mum'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:15, streak:{mum:3},    completedToday:[] },
+  { id:'s4', type:'habit', title:'Morning run',         assignedTo:['dad'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:15, streak:{dad:9},    completedToday:['dad'] },
+  { id:'s5', type:'habit', title:'Take supplements',    assignedTo:['dad'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{dad:5},    completedToday:[] },
+  { id:'s6', type:'habit', title:'Family dinner',       assignedTo:['mum','dad','sophie','olivia'], visibility:'shared', recurrence:'daily', completionType:'all', xp:5, streak:{mum:21,dad:21,sophie:21,olivia:21}, completedToday:[] },
+  { id:'s7', type:'habit', title:'Brush teeth (morning)', assignedTo:['sophie'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{sophie:12}, completedToday:['sophie'] },
+  { id:'s8', type:'habit', title:'Brush teeth (evening)', assignedTo:['sophie'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{sophie:12}, completedToday:[] },
+  { id:'s9', type:'habit', title:'Read for 15 mins',    assignedTo:['sophie'],           visibility:'personal', recurrence:'daily',    completionType:'each', xp:15, streak:{sophie:4},  completedToday:[] },
+  { id:'s10',type:'habit', title:'Pack school bag',     assignedTo:['sophie'],           visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{sophie:6},  completedToday:['sophie'] },
+  { id:'s11',type:'habit', title:'Brush teeth (morning)', assignedTo:['olivia'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{olivia:8},  completedToday:[] },
+  { id:'s12',type:'habit', title:'Brush teeth (evening)', assignedTo:['olivia'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{olivia:8},  completedToday:[] },
+  { id:'s13',type:'habit', title:'Tidy toys before bed',  assignedTo:['olivia'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{olivia:3},  completedToday:[] },
+  { id:'t1', type:'todo',  title:'Book dentist',        assignedTo:['mum'],              visibility:'personal', recurrence:null,       completionType:'each', xp:5,  streak:{},          completedToday:[], dueDate:'Fri', dueMs:daysFromNow(4) },
+  { id:'t2', type:'todo',  title:'Order school shoes',  assignedTo:['mum'],              visibility:'shared',   recurrence:null,       completionType:'all',  xp:5,  streak:{},          completedToday:[], dueDate:'Today', dueMs:daysFromNow(0), overdue:true },
+  { id:'t3', type:'todo',  title:'Fix garden gate',     assignedTo:['dad'],              visibility:'personal', recurrence:null,       completionType:'each', xp:10, streak:{},          completedToday:[], dueDate:'Sat', dueMs:daysFromNow(5) },
+  { id:'t4', type:'todo',  title:'Pay car insurance',   assignedTo:['dad'],              visibility:'personal', recurrence:null,       completionType:'each', xp:5,  streak:{},          completedToday:[], dueDate:'Tomorrow', dueMs:daysFromNow(1) },
+  { id:'t5', type:'todo',  title:'Maths homework',      assignedTo:['sophie'],           visibility:'personal', recurrence:null,       completionType:'each', xp:20, streak:{},          completedToday:[], dueDate:'Thu', dueMs:daysFromNow(3) },
+  { id:'t6', type:'todo',  title:'Draw card for Grandma', assignedTo:['olivia'],         visibility:'personal', recurrence:null,       completionType:'each', xp:15, streak:{},          completedToday:[], dueDate:'Fri', dueMs:daysFromNow(4) },
+];
+
+const XP_DEFAULTS = { mum:1240, dad:980, sophie:620, olivia:410 };
+
+function daysFromNow(d){ return Date.now() + d*86400000; }
+
+/* ─── State ─── */
+let cur = 'mum';
+let tasks = [];
+let xp = {};
+let showCompleted = false;
+
+/* form state */
+let fType='habit', fRecur='daily', fVis='shared', fComp='all', fAssigned=['mum'];
+
+/* ─── Storage ─── */
+function save(){
+  try{
+    localStorage.setItem('tido_tasks', JSON.stringify(tasks));
+    localStorage.setItem('tido_xp', JSON.stringify(xp));
+    localStorage.setItem('tido_lastUser', cur);
+    checkMidnightReset();
+  } catch(e){}
+}
+
+function load(){
+  try{
+    const t = localStorage.getItem('tido_tasks');
+    const x = localStorage.getItem('tido_xp');
+    tasks = t ? JSON.parse(t) : JSON.parse(JSON.stringify(SEED_TASKS));
+    xp    = x ? JSON.parse(x) : {...XP_DEFAULTS};
+    cur   = localStorage.getItem('tido_lastUser') || 'mum';
+    checkMidnightReset();
+  } catch(e){
+    tasks = JSON.parse(JSON.stringify(SEED_TASKS));
+    xp    = {...XP_DEFAULTS};
+  }
+}
+
+function checkMidnightReset(){
+  const today = new Date().toDateString();
+  const last  = localStorage.getItem('tido_lastReset');
+  if(last !== today){
+    tasks.forEach(t => {
+      if(t.type==='habit') t.completedToday = [];
+    });
+    localStorage.setItem('tido_lastReset', today);
+  }
+}
+
+/* ─── Greeting helpers ─── */
+function greeting(){
+  const h = new Date().getHours();
+  if(h < 12) return 'Good morning';
+  if(h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+function formatDate(){
+  return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+}
+
+/* ─── Accent ─── */
+function applyAccent(u){
+  const usr = USERS[u];
+  document.documentElement.style.setProperty('--accent', usr.accent);
+  document.documentElement.style.setProperty('--accent-soft', usr.soft);
+  document.documentElement.style.setProperty('--accent-dark', usr.dark);
+}
+
+/* ─── Switch user ─── */
+function switchUser(u){
+  cur = u;
+  applyAccent(u);
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.toggle('active', b.dataset.u===u));
+  const usr = USERS[u];
+  const emoji = EMOJI[u] ? ' '+EMOJI[u] : '!';
+  document.getElementById('g-name').textContent = usr.greet+', '+usr.name+emoji;
+  document.getElementById('g-xp').textContent = (xp[u]||0).toLocaleString()+' XP';
+  document.getElementById('g-date').textContent = formatDate();
+  render();
+  save();
+}
+
+/* ─── Render ─── */
+function render(){
+  const usr = USERS[cur];
+  const myTasks = tasks.filter(t => t.assignedTo.includes(cur));
+  const habits  = myTasks.filter(t => t.type==='habit');
+  const todos   = myTasks.filter(t => t.type==='todo');
+  const kidMode = usr.isKid ? 'kid-mode' : '';
+
+  const pendingHabits = habits.filter(t => !t.completedToday.includes(cur));
+  const doneHabits    = habits.filter(t =>  t.completedToday.includes(cur));
+  const pendingTodos  = todos.filter(t => !t.completedToday.includes(cur));
+  const doneTodos     = todos.filter(t =>  t.completedToday.includes(cur));
+
+  let html = '';
+
+  /* Habits */
+  if(habits.length){
+    html += `<div class="section-label">
+      <span><i class="ti ti-repeat" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Habits</span>
+      <span class="section-count">${pendingHabits.length} left today</span>
+    </div>
+    <div class="card ${kidMode}">`;
+    pendingHabits.forEach(t => { html += taskRow(t); });
+    if(doneHabits.length){
+      html += completedToggle('habits', doneHabits, kidMode);
+    }
+    html += `</div>`;
+  }
+
+  /* Todos */
+  if(todos.length){
+    html += `<div class="section-label" style="margin-top:14px">
+      <span><i class="ti ti-list-check" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>To-dos</span>
+      <span class="section-count">${pendingTodos.length} open</span>
+    </div>
+    <div class="card ${kidMode}">`;
+    pendingTodos.forEach(t => { html += taskRow(t); });
+    if(doneTodos.length){
+      html += completedToggle('todos', doneTodos, kidMode);
+    }
+    html += `</div>`;
+  }
+
+  if(!habits.length && !todos.length){
+    html = `<div class="empty-state"><i class="ti ti-confetti"></i>Nothing here yet — tap + to add your first task!</div>`;
+  }
+
+  document.getElementById('task-list').innerHTML = html;
+}
+
+function taskRow(t){
+  const done = t.completedToday.includes(cur);
+  const streak = t.streak[cur] || 0;
+
+  const streakHtml = streak > 0
+    ? `<div class="streak-pill"><i class="ti ti-flame"></i><span>${streak}</span></div>`
+    : `<div class="streak-zero"></div>`;
+
+  let sub = '';
+  if(t.assignedTo.length > 1) sub += `<span class="shared-tag">shared</span>`;
+  if(t.dueDate){
+    const od = t.overdue ? 'overdue' : '';
+    sub += `<span class="due-tag ${od}">${t.overdue ? '⚠ ' : ''}${t.dueDate}</span>`;
+  }
+
+  return `<div class="task-row${done?' done-row':''}" onclick="toggleTask('${t.id}')">
+    <div class="check${done?' done':''}"><i class="ti ti-check"></i></div>
+    ${streakHtml}
+    <div class="task-info">
+      <div class="task-title${done?' done':''}">${t.title}</div>
+      ${sub ? `<div class="task-sub">${sub}</div>` : ''}
+    </div>
+    <div class="xp-pill"><i class="ti ti-star"></i><span>${t.xp}</span></div>
+  </div>`;
+}
+
+function completedToggle(id, doneTasks, kidMode){
+  const open = showCompleted;
+  let html = `<button class="completed-toggle${open?' open':''}" onclick="toggleCompleted()" style="padding-left:13px">
+    <i class="ti ti-chevron-right"></i>
+    <span>${doneTasks.length} completed</span>
+  </button>`;
+  if(open){
+    doneTasks.forEach(t => { html += taskRow(t); });
+  }
+  return html;
+}
+
+function toggleCompleted(){
+  showCompleted = !showCompleted;
+  render();
+}
+
+/* ─── Toggle task ─── */
+function toggleTask(id){
+  const t = tasks.find(x => x.id===id);
+  if(!t) return;
+  const done = t.completedToday.includes(cur);
+
+  if(done){
+    t.completedToday = t.completedToday.filter(u => u!==cur);
+    if(t.type==='habit'){
+      t.streak[cur] = Math.max(0,(t.streak[cur]||0)-1);
+    }
+    xp[cur] = Math.max(0,(xp[cur]||0) - t.xp);
+  } else {
+    if(t.completionType==='all'){
+      t.completedToday = [...t.assignedTo];
+    } else {
+      t.completedToday.push(cur);
+    }
+    if(t.type==='habit'){
+      const s = (t.streak[cur]||0)+1;
+      t.streak[cur] = s;
+      const bonus = Math.floor(s/7)*2;
+      const earned = t.xp + bonus;
+      xp[cur] = (xp[cur]||0) + earned;
+      showToast(`+${earned} XP${bonus>0?' 🔥 streak bonus!':''}`);
+    } else {
+      xp[cur] = (xp[cur]||0) + t.xp;
+      showToast(`+${t.xp} XP`);
+    }
+  }
+
+  document.getElementById('g-xp').textContent = (xp[cur]||0).toLocaleString()+' XP';
+  save();
+  render();
+}
+
+/* ─── Toast ─── */
+let toastTimer;
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2000);
+}
+
+function showXpInfo(){
+  showToast('Total XP earned by '+USERS[cur].name);
+}
+
+function comingSoon(name){
+  showToast(name+' coming soon!');
+}
+
+/* ─── Sheet ─── */
+function openSheet(){
+  fAssigned = [cur];
+  fType='habit'; fRecur='daily'; fVis='shared'; fComp='all';
+  document.getElementById('f-title').value='';
+  document.getElementById('f-xp').value=10;
+  document.getElementById('f-xp-lbl').textContent='10 XP';
+  setType('habit');
+  setVis('shared');
+  setComp('all');
+  document.querySelectorAll('.a-chip').forEach(c=>c.classList.toggle('on',c.dataset.a===cur));
+  document.querySelectorAll('[data-recur]').forEach(p=>p.classList.toggle('on',p.dataset.recur==='daily'));
+  document.getElementById('sheet-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-title').focus(),300);
+}
+
+function closeSheet(){
+  document.getElementById('sheet-overlay').classList.remove('open');
+}
+
+function overlayClick(e){
+  if(e.target===document.getElementById('sheet-overlay')) closeSheet();
+}
+
+function setType(v){
+  fType=v;
+  document.querySelectorAll('[data-type]').forEach(p=>p.classList.toggle('on',p.dataset.type===v));
+  document.getElementById('f-recur').style.display = v==='habit' ? '' : 'none';
+  document.getElementById('f-due').style.display   = v==='todo'  ? '' : 'none';
+  document.getElementById('f-completion-wrap').style.display = fVis==='shared' ? '' : 'none';
+}
+
+function setRecur(v){
+  fRecur=v;
+  document.querySelectorAll('[data-recur]').forEach(p=>p.classList.toggle('on',p.dataset.recur===v));
+}
+
+function setVis(v){
+  fVis=v;
+  document.querySelectorAll('[data-vis]').forEach(p=>p.classList.toggle('on',p.dataset.vis===v));
+  document.getElementById('f-completion-wrap').style.display = v==='shared' ? '' : 'none';
+}
+
+function setComp(v){
+  fComp=v;
+  document.querySelectorAll('[data-comp]').forEach(p=>p.classList.toggle('on',p.dataset.comp===v));
+}
+
+function toggleAssign(a){
+  const i = fAssigned.indexOf(a);
+  if(i>-1){ if(fAssigned.length>1) fAssigned.splice(i,1); }
+  else fAssigned.push(a);
+  document.querySelectorAll('.a-chip').forEach(c=>c.classList.toggle('on',fAssigned.includes(c.dataset.a)));
+}
+
+function addTask(){
+  const title = document.getElementById('f-title').value.trim();
+  if(!title){ document.getElementById('f-title').focus(); return; }
+
+  const xpVal  = parseInt(document.getElementById('f-xp').value)||10;
+  const dateEl = document.getElementById('f-date');
+  const dueRaw = dateEl.value;
+  let dueDate  = null, dueMs = null;
+
+  if(fType==='todo' && dueRaw){
+    const d = new Date(dueRaw);
+    dueDate = d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    dueMs   = d.getTime();
+  }
+
+  const streakInit = {};
+  fAssigned.forEach(u=>{ streakInit[u]=0; });
+
+  const nt = {
+    id: 'u'+Date.now(),
+    type: fType,
+    title,
+    assignedTo: [...fAssigned],
+    visibility: fVis,
+    recurrence: fType==='habit' ? fRecur : null,
+    completionType: fVis==='shared' ? fComp : 'each',
+    xp: xpVal,
+    streak: streakInit,
+    completedToday: [],
+    dueDate,
+    dueMs,
+    overdue: false,
+  };
+
+  tasks.push(nt);
+  save();
+  render();
+  closeSheet();
+  showToast('Task added!');
+}
+
+/* ─── Service worker ─── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+
+/* ─── Boot ─── */
+load();
+switchUser(cur);
+</script>
+</body>
+</html>
