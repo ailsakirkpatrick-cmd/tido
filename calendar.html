@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Tido"/>
+<meta name="theme-color" content="#7F77DD"/>
+<title>Tido — Calendar</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --mum:#7F77DD;--dad:#1D9E75;--sophie:#D05A8A;--olivia:#9B6FD4;--family:#888780;
+  --acc:#7F77DD;--acc-s:#EEEDFE;--acc-d:#3C3489;
+  --glass:rgba(255,255,255,0.72);--gb:rgba(180,160,220,0.2);
+  --tx:#3a3060;--txs:#9088b0;--txh:#c0b8d8;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;color:var(--tx);display:flex;flex-direction:column;max-width:430px;margin:0 auto;background:linear-gradient(160deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%);}
+body::before{content:'';position:fixed;inset:0;background:inherit;z-index:-1;}
+
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+.top-bar{background:var(--glass);border-bottom:0.5px solid var(--gb);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-shrink:0;}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 0;}
+.scroll-area::-webkit-scrollbar{display:none;}
+.bottom-bar{background:var(--glass);border-top:0.5px solid var(--gb);backdrop-filter:blur(12px);padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
+
+/* ── Status bar ── */
+.status{background:rgba(255,255,255,0.55);padding:8px 18px;display:flex;justify-content:space-between;}
+.status span{font-size:12px;font-weight:500;color:var(--txs);}
+.status .app-name{font-weight:700;color:var(--tx);}
+
+/* ── Week strip ── */
+.week-strip{padding:8px 12px 10px;}
+.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.week-nav-btn{border:none;background:none;cursor:pointer;font-size:20px;color:var(--txs);padding:2px 6px;border-radius:8px;transition:background 0.1s;}
+.week-nav-btn:hover{background:rgba(255,255,255,0.6);}
+.week-label{font-size:12px;font-weight:700;color:var(--tx);}
+.week-days{display:flex;gap:3px;}
+.day-cell{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 2px;border-radius:10px;transition:background 0.12s;border:1.5px solid transparent;}
+.day-cell:hover{background:rgba(255,255,255,0.6);}
+.day-cell.selected{background:rgba(255,255,255,0.9);border-color:var(--acc);}
+.day-cell .dn{font-size:10px;color:var(--txs);font-weight:400;}
+.day-cell.selected .dn{color:var(--acc);font-weight:700;}
+.day-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--tx);}
+.day-cell.selected .day-num{color:var(--acc);font-weight:700;}
+.day-num.is-today{background:var(--acc);color:#fff !important;font-weight:700;}
+.day-dots{display:flex;gap:2px;height:6px;align-items:center;min-height:6px;}
+.day-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* ── Tab bar ── */
+.tab-bar{display:flex;border-bottom:0.5px solid rgba(180,160,220,0.15);background:rgba(255,255,255,0.4);}
+.tbtab{flex:1;padding:8px 4px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:var(--txs);border-bottom:2px solid transparent;transition:color 0.15s;}
+.tbtab.active{color:var(--acc);font-weight:700;border-bottom-color:var(--acc);}
+.tbtab.add-tab{color:var(--acc);font-weight:700;}
+
+/* ── Cards ── */
+.card{background:var(--glass);border-radius:14px;border:0.5px solid var(--gb);overflow:hidden;margin-bottom:10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.card-hdr{padding:9px 14px;border-bottom:0.5px solid rgba(180,160,220,0.12);font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.07em;}
+.card-hdr.morning{background:#FFF7ED;color:#854F0B;border-bottom-color:rgba(224,140,80,0.2);}
+.card-hdr.afternoon{background:#E1F5EE;color:#085041;border-bottom-color:rgba(29,158,117,0.2);}
+.card-hdr.evening{background:var(--acc-s);color:var(--acc-d);border-bottom-color:rgba(127,119,221,0.2);}
+.card-hdr.tomorrow{background:#F1EFE8;color:#444441;border-bottom-color:rgba(136,135,128,0.2);}
+.row-sep{border-bottom:0.5px solid rgba(180,160,220,0.09);}
+
+/* ── Day header ── */
+.day-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;}
+.day-hdr-left .day-sub{font-size:11px;color:var(--txh);margin-bottom:2px;}
+.day-hdr-left .day-count{font-size:18px;font-weight:700;color:var(--tx);}
+.today-btn{border:0.5px solid var(--gb);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--acc);background:rgba(255,255,255,0.8);cursor:pointer;font-family:inherit;transition:background 0.1s;}
+.today-btn:hover{background:#fff;}
+
+/* ── Event rows ── */
+.event-row{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:background 0.1s;}
+.event-row:hover{background:rgba(255,255,255,0.5);}
+.event-row:active{background:rgba(255,255,255,0.8);}
+.event-bar{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0;}
+.event-type-icon{font-size:18px;flex-shrink:0;}
+.event-info{flex:1;min-width:0;}
+.event-title{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.event-meta{font-size:11px;color:var(--txs);}
+.event-avatars{display:flex;gap:2px;flex-shrink:0;}
+.event-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;}
+.event-chevron{font-size:16px;color:var(--txh);}
+
+/* ── Detail view ── */
+.detail-top-bar{height:6px;border-radius:14px 14px 0 0;}
+.detail-body{padding:14px 16px 16px;}
+.detail-type-label{font-size:11px;color:var(--txs);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.detail-icon{font-size:24px;margin-bottom:4px;}
+.detail-title{font-size:20px;font-weight:700;color:var(--tx);margin-bottom:8px;}
+.detail-row{font-size:13px;color:var(--txs);margin-bottom:4px;display:flex;align-items:flex-start;gap:6px;}
+.detail-row .di{flex-shrink:0;}
+.detail-people{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.person-chip{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 10px;font-size:12px;}
+.person-dot{width:8px;height:8px;border-radius:50%;}
+.integration-card{border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.integration-card .int-title{font-size:12px;font-weight:700;margin-bottom:4px;}
+.integration-card .int-body{font-size:12px;line-height:1.6;}
+.back-btn{width:100%;padding:12px;border-radius:12px;border:0.5px solid var(--gb);background:rgba(240,238,248,0.9);color:var(--txs);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;}
+
+/* ── Add form ── */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;}
+.field input[type=text],.field input[type=date],.field input[type=time],.field textarea{width:100%;border:0.5px solid rgba(180,160,220,0.3);border-radius:10px;padding:9px 12px;font-size:14px;background:rgba(255,255,255,0.85);color:var(--tx);font-family:inherit;outline:none;transition:border-color 0.15s;}
+.field input:focus,.field textarea:focus{border-color:var(--acc);background:#fff;}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{padding:5px 11px;border-radius:20px;border:0.5px solid rgba(180,160,220,0.25);font-size:12px;cursor:pointer;background:rgba(255,255,255,0.6);color:var(--txs);transition:all 0.12s;white-space:nowrap;font-family:inherit;}
+.pill.on{background:var(--acc-s);color:var(--acc-d);border-color:var(--acc);font-weight:700;}
+.assign-row{display:flex;gap:10px;flex-wrap:wrap;}
+.a-chip{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.a-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;border:2.5px solid transparent;opacity:0.35;transition:all 0.15s;}
+.a-chip.on .a-av{opacity:1;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-s);}
+.a-name{font-size:10px;color:var(--txs);}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;}
+.tog-label{font-size:13px;color:var(--tx);}
+.tog{width:36px;height:20px;background:rgba(180,160,220,0.22);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.tog.on{background:var(--acc);}
+.tok{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.2s;pointer-events:none;}
+.tog.on .tok{transform:translateX(16px);}
+.time-row{display:flex;gap:8px;}
+.time-row .field{flex:1;}
+.remind-box{border-radius:12px;padding:12px 14px;margin-bottom:14px;}
+.remind-box .rb-title{font-size:12px;font-weight:700;margin-bottom:4px;}
+.remind-box .rb-body{font-size:12px;line-height:1.5;margin-bottom:8px;}
+.remind-box .rb-date{font-size:11px;margin-top:6px;}
+.xp-ctrl{display:flex;align-items:center;gap:10px;}
+.xp-ctrl input[type=range]{flex:1;}
+.xp-ctrl-val{font-size:14px;font-weight:700;min-width:52px;text-align:right;}
+.btn-row{display:flex;gap:8px;}
+.btn{flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.12s;}
+.btn:active{opacity:0.8;}
+.btn-primary{background:var(--acc);color:#fff;}
+.btn-cancel{background:rgba(240,238,248,0.9);color:var(--txs);border:0.5px solid rgba(180,160,220,0.25);}
+
+/* ── Dashboard ── */
+.dash-title{text-align:center;padding:12px 0 8px;}
+.dash-title .dt-date{font-size:11px;color:var(--txh);margin-bottom:2px;}
+.dash-title .dt-heading{font-size:24px;font-weight:700;color:var(--tx);}
+.dash-event{display:flex;align-items:center;gap:10px;padding:10px 14px;}
+.dash-event-icon{font-size:18px;flex-shrink:0;}
+.dash-event-info{flex:1;}
+.dash-event-title{font-size:14px;font-weight:600;color:var(--tx);}
+.dash-event-meta{font-size:11px;color:var(--txs);}
+.dash-empty{padding:10px 14px;font-size:13px;color:var(--txh);}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:28px 16px;color:var(--txh);font-size:14px;}
+.empty-state .es-icon{font-size:32px;display:block;margin-bottom:8px;opacity:0.35;}
+
+/* ── Toast ── */
+.toast{position:fixed;top:calc(var(--safe-top) + 60px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--acc);color:#fff;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Nav ── */
+.nav-inner{display:flex;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;padding:4px;font-family:inherit;}
+.nb span.ni{font-size:20px;color:var(--txh);}
+.nb span.nl{font-size:10px;color:var(--txh);}
+.nb.active span.ni,.nb.active span.nl{color:var(--acc);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="status">
+      <span id="clock">9:41</span>
+      <span class="app-name">Tido</span>
+      <span>100%</span>
+    </div>
+    <div class="week-strip" id="week-strip"></div>
+    <div class="tab-bar" id="tab-bar"></div>
+  </div>
+  <div class="scroll-area" id="main-content"></div>
+  <div class="bottom-bar">
+    <div class="nav-inner">
+      <button class="nb" onclick="navPage('tasks')" aria-label="Tasks"><span class="ni">✅</span><span class="nl">Tasks</span></button>
+      <button class="nb" onclick="navPage('rewards')" aria-label="Rewards"><span class="ni">🎁</span><span class="nl">Rewards</span></button>
+      <button class="nb active" aria-label="Calendar"><span class="ni">📅</span><span class="nl">Calendar</span></button>
+      <button class="nb" onclick="navPage('settings')" aria-label="Settings"><span class="ni">⚙️</span><span class="nl">Settings</span></button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── Config ─── */
+const USERS = {
+  mum:    {name:'Mum',    color:'#7F77DD',soft:'#EEEDFE',dark:'#3C3489'},
+  dad:    {name:'Dad',    color:'#1D9E75',soft:'#E1F5EE',dark:'#085041'},
+  sophie: {name:'Sophie', color:'#D05A8A',soft:'#FBEAF0',dark:'#72243E',emoji:'🐱'},
+  olivia: {name:'Olivia', color:'#9B6FD4',soft:'#F0EBFB',dark:'#5B3A8A',emoji:'🌸'},
+  family: {name:'Family', color:'#888780',soft:'#F1EFE8',dark:'#444441'},
+};
+
+const EVENT_TYPES = [
+  {id:'family',  label:'Family',   icon:'👨‍👩‍👧'},
+  {id:'school',  label:'School',   icon:'🎓'},
+  {id:'birthday',label:'Birthday', icon:'🎂'},
+  {id:'health',  label:'Health',   icon:'🏥'},
+  {id:'sport',   label:'Sport',    icon:'⚽'},
+  {id:'other',   label:'Other',    icon:'📌'},
+];
+
+const TYPE_ICON = {family:'👨‍👩‍👧',school:'🎓',birthday:'🎂',health:'🏥',sport:'⚽',other:'📌'};
+
+const TODAY = new Date(2026,5,23);
+
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function fmtDate(d){return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}
+function fmtShort(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function fmtTime(t){if(!t)return'';const[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';return`${h%12||12}:${String(m).padStart(2,'0')}${ap}`;}
+
+function timePeriod(e){
+  if(e.allDay)return'morning';
+  if(!e.startTime)return'afternoon';
+  const h=parseInt(e.startTime.split(':')[0]);
+  return h<12?'morning':h<17?'afternoon':'evening';
+}
+
+function getWeekDays(anchor){
+  const d=new Date(anchor),dow=d.getDay(),mon=new Date(d);
+  mon.setDate(d.getDate()-((dow+6)%7));
+  return Array.from({length:7},(_,i)=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x;});
+}
+
+/* ─── State ─── */
+let selectedDay = new Date(TODAY);
+let weekAnchor  = new Date(TODAY);
+let view        = 'day';
+let selectedEvent = null;
+let events      = [];
+let formState   = {};
+
+/* ─── Seed events ─── */
+const SEED = [
+  {id:'e1', title:'School run',          date:new Date(2026,5,23),startTime:'08:15',endTime:'08:45',allDay:false,type:'school',  assignedTo:['mum','sophie','olivia'],notes:'',location:'',remindDays:3},
+  {id:'e2', title:'Sophie — swimming',   date:new Date(2026,5,23),startTime:'16:00',endTime:'17:00',allDay:false,type:'sport',   assignedTo:['sophie'],notes:'',location:'Leisure Centre',remindDays:1},
+  {id:'e3', title:'Family dinner',       date:new Date(2026,5,23),startTime:'18:30',endTime:'',     allDay:false,type:'family',  assignedTo:['mum','dad','sophie','olivia'],notes:'Pizza night',location:'',remindDays:0},
+  {id:'e4', title:'Dentist — Olivia',    date:new Date(2026,5,24),startTime:'10:00',endTime:'10:30',allDay:false,type:'health',  assignedTo:['olivia','mum'],notes:'',location:'Town Dental',remindDays:1},
+  {id:'e5', title:'Dad — work trip',     date:new Date(2026,5,24),startTime:'',endTime:'',          allDay:true, type:'other',   assignedTo:['dad'],notes:'Back Thursday',location:'London',remindDays:0},
+  {id:'e6', title:'School sports day',   date:new Date(2026,5,25),startTime:'09:00',endTime:'15:00',allDay:false,type:'school',  assignedTo:['sophie','olivia','mum'],notes:'Pack sun cream and packed lunch',location:'School field',remindDays:3},
+  {id:'e7', title:"Grandma's birthday 🎂",date:new Date(2026,6,15),startTime:'',endTime:'',         allDay:true, type:'birthday',assignedTo:['family'],notes:'Get card and flowers',location:'',remindDays:30},
+  {id:'e8', title:'Olivia — playdate',   date:new Date(2026,5,26),startTime:'14:00',endTime:'17:00',allDay:false,type:'family',  assignedTo:['olivia'],notes:"At Isla's house",location:'',remindDays:0},
+  {id:'e9', title:'Mum — yoga class',    date:new Date(2026,5,27),startTime:'09:30',endTime:'10:30',allDay:false,type:'other',   assignedTo:['mum'],notes:'',location:'Studio 7',remindDays:0},
+  {id:'e10',title:'Movie night 🎬',       date:new Date(2026,5,27),startTime:'19:00',endTime:'',    allDay:false,type:'family',  assignedTo:['mum','dad','sophie','olivia'],notes:'Sophie picks this week',location:'',remindDays:0},
+];
+
+/* ─── Storage ─── */
+function save(){
+  try{
+    const ser = events.map(e=>({...e,date:e.date.toISOString()}));
+    localStorage.setItem('tido_cal_events', JSON.stringify(ser));
+    localStorage.setItem('tido_cal_day',    selectedDay.toISOString());
+    localStorage.setItem('tido_cal_week',   weekAnchor.toISOString());
+  }catch(e){}
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem('tido_cal_events');
+    events = raw ? JSON.parse(raw).map(e=>({...e,date:new Date(e.date)})) : SEED.map(e=>({...e,date:new Date(e.date)}));
+    const sd = localStorage.getItem('tido_cal_day');
+    const wa = localStorage.getItem('tido_cal_week');
+    if(sd) selectedDay = new Date(sd);
+    if(wa) weekAnchor  = new Date(wa);
+  }catch(e){
+    events = SEED.map(e=>({...e,date:new Date(e.date)}));
+  }
+}
+
+function resetForm(){
+  const d = selectedDay.toISOString().split('T')[0];
+  formState = {title:'',date:d,startTime:'',endTime:'',allDay:false,type:'family',assignedTo:['mum','dad'],location:'',notes:'',remindDays:0};
+}
+
+/* ─── Clock ─── */
+function updateClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock, 30000);
+updateClock();
+
+/* ─── Helpers ─── */
+function eventsForDay(day){
+  return events.filter(e=>sameDay(e.date,day)).sort((a,b)=>{
+    if(a.allDay&&!b.allDay)return -1;
+    if(!a.allDay&&b.allDay)return 1;
+    return(a.startTime||'99:99').localeCompare(b.startTime||'99:99');
+  });
+}
+
+function userColor(uid){
+  if(uid==='family')return USERS.family.color;
+  return USERS[uid]?.color||'#888';
+}
+
+function avatarsHtml(assignedTo,size=20){
+  return assignedTo.slice(0,3).map(uid=>{
+    const u = uid==='family'?USERS.family:USERS[uid];
+    if(!u)return'';
+    return`<div class="event-av" style="width:${size}px;height:${size}px;background:${u.color};font-size:${Math.round(size*0.4)}px">${u.name[0]}</div>`;
+  }).join('');
+}
+
+/* ─── Week strip ─── */
+function renderWeekStrip(){
+  const days = getWeekDays(weekAnchor);
+  const DAY_NAMES=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const rangeLabel = `${days[0].toLocaleDateString('en-GB',{month:'short',day:'numeric'})} – ${days[6].toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
+
+  let html=`<div class="week-nav">
+    <button class="week-nav-btn" onclick="prevWeek()">‹</button>
+    <span class="week-label">${rangeLabel}</span>
+    <button class="week-nav-btn" onclick="nextWeek()">›</button>
+  </div><div class="week-days">`;
+
+  days.forEach((d,i)=>{
+    const isToday    = sameDay(d,TODAY);
+    const isSelected = sameDay(d,selectedDay);
+    const dayEvs     = eventsForDay(d);
+    const dots       = dayEvs.slice(0,3).map(e=>`<div class="day-dot" style="background:${userColor(e.assignedTo[0])}"></div>`).join('');
+    html+=`<div class="day-cell${isSelected?' selected':''}" onclick="selectDay(${d.getTime()})">
+      <span class="dn">${DAY_NAMES[i]}</span>
+      <span class="day-num${isToday?' is-today':''}">${d.getDate()}</span>
+      <div class="day-dots">${dots}</div>
+    </div>`;
+  });
+
+  html+=`</div>`;
+  document.getElementById('week-strip').innerHTML=html;
+}
+
+/* ─── Tab bar ─── */
+function renderTabBar(){
+  const tabs=[['day','📅 Day'],['dashboard','🏠 Dashboard'],['add','＋ Add']];
+  document.getElementById('tab-bar').innerHTML=tabs.map(([id,label])=>
+    `<button class="tbtab${view===id?' active':id==='add'?' add-tab':''}" onclick="setView('${id}')">${label}</button>`
+  ).join('');
+}
+
+/* ─── Main render ─── */
+function render(){
+  renderWeekStrip();
+  renderTabBar();
+  const c=document.getElementById('main-content');
+  if(view==='day')       c.innerHTML=renderDay();
+  else if(view==='detail')c.innerHTML=renderDetail();
+  else if(view==='add')  c.innerHTML=renderAdd();
+  else if(view==='dashboard')c.innerHTML=renderDashboard();
+}
+
+/* ─── Day view ─── */
+function renderDay(){
+  const dayEvs  = eventsForDay(selectedDay);
+  const isToday = sameDay(selectedDay,TODAY);
+  const allDay  = dayEvs.filter(e=>e.allDay);
+  const timed   = dayEvs.filter(e=>!e.allDay);
+  const todayBtn= !isToday?`<button class="today-btn" onclick="goToday()">Today</button>`:'';
+
+  let html=`<div class="day-hdr">
+    <div class="day-hdr-left">
+      <div class="day-sub">${isToday?'Today · ':''}${fmtDate(selectedDay)}</div>
+      <div class="day-count">${dayEvs.length} event${dayEvs.length!==1?'s':''}</div>
+    </div>
+    ${todayBtn}
+  </div>`;
+
+  if(!dayEvs.length){
+    html+=`<div class="card"><div class="empty-state"><span class="es-icon">📅</span>Nothing planned — enjoy the free time!</div></div>`;
+    return html;
+  }
+
+  if(allDay.length){
+    html+=`<div class="card"><div class="card-hdr">All day</div>${allDay.map(e=>eventRowHtml(e)).join('')}</div>`;
+  }
+  if(timed.length){
+    html+=`<div class="card"><div class="card-hdr">Scheduled</div>${timed.map(e=>eventRowHtml(e)).join('')}</div>`;
+  }
+  return html;
+}
+
+function eventRowHtml(e){
+  const col  = userColor(e.assignedTo[0]);
+  const icon = TYPE_ICON[e.type]||'📌';
+  const time = e.allDay?'All day':[fmtTime(e.startTime),fmtTime(e.endTime)].filter(Boolean).join(' – ');
+  const loc  = e.location?` · ${e.location}`:'';
+  return`<div class="event-row row-sep" onclick="openEvent('${e.id}')">
+    <div class="event-bar" style="background:${col}"></div>
+    <div class="event-type-icon">${icon}</div>
+    <div class="event-info">
+      <div class="event-title">${e.title}</div>
+      <div class="event-meta">${time}${loc}</div>
+    </div>
+    <div class="event-avatars">${avatarsHtml(e.assignedTo)}</div>
+    <span class="event-chevron">›</span>
+  </div>`;
+}
+
+/* ─── Detail view ─── */
+function renderDetail(){
+  const e=selectedEvent;
+  if(!e)return'';
+  const col    = userColor(e.assignedTo[0]);
+  const icon   = TYPE_ICON[e.type]||'📌';
+  const typeLabel=(EVENT_TYPES.find(t=>t.id===e.type)||{label:'Event'}).label;
+  const time   = e.allDay?'All day':[fmtTime(e.startTime),fmtTime(e.endTime)].filter(Boolean).join(' – ');
+  const isBday = e.type==='birthday';
+  const isSchool=e.type==='school';
+
+  const people = e.assignedTo.map(uid=>{
+    const u=uid==='family'?USERS.family:USERS[uid];if(!u)return'';
+    return`<span class="person-chip" style="background:${u.soft||'#f0f0f0'}">
+      <span class="person-dot" style="background:${u.color}"></span>
+      ${u.name}${u.emoji?' '+u.emoji:''}
+    </span>`;
+  }).join('');
+
+  let integrationHtml='';
+  if((isBday||isSchool)&&e.remindDays>0){
+    const remindDate=fmtShort(addDays(e.date,-e.remindDays));
+    const bg=isBday?'#FFF7ED':'#EEEDFE';
+    const tc=isBday?'#854F0B':'#3C3489';
+    integrationHtml=`<div class="integration-card" style="background:${bg}">
+      <div class="int-title" style="color:${tc}">${isBday?'🎁 Shopping list reminder':'✅ To-do prep task'}</div>
+      <div class="int-body" style="color:${tc}">
+        ${isBday
+          ?`A gift reminder will appear in the Shopping List <strong>${e.remindDays} days before</strong> (${remindDate}).`
+          :`A prep task will appear in To-Do <strong>${e.remindDays} days before</strong> (${remindDate}).`}
+      </div>
+    </div>`;
+  }
+
+  return`<div class="card" style="overflow:visible">
+    <div class="detail-top-bar" style="background:${col}"></div>
+    <div class="detail-body">
+      <div class="detail-type-label">${typeLabel}</div>
+      <div class="detail-icon">${icon}</div>
+      <div class="detail-title">${e.title}</div>
+      <div class="detail-row"><span class="di">📅</span>${fmtDate(e.date)}</div>
+      <div class="detail-row"><span class="di">🕐</span>${time}</div>
+      ${e.location?`<div class="detail-row"><span class="di">📍</span>${e.location}</div>`:''}
+      ${e.notes?`<div class="detail-row"><span class="di">💬</span><em>${e.notes}</em></div>`:''}
+      <div class="detail-people">${people}</div>
+    </div>
+  </div>
+  ${integrationHtml}
+  <button class="back-btn" onclick="setView('day')">← Back to calendar</button>`;
+}
+
+/* ─── Add view ─── */
+function renderAdd(){
+  const isBday   = formState.type==='birthday';
+  const isSchool = formState.type==='school';
+  const showRemind = isBday||isSchool;
+  const remindDays = formState.remindDays||(isBday?30:isSchool?3:0);
+  const remindColor= isBday?'#E07B3A':'#7F77DD';
+  const remindBg   = isBday?'#FFF7ED':'#EEEDFE';
+  const remindTc   = isBday?'#854F0B':'#3C3489';
+  const remindMax  = isBday?90:14;
+
+  let remindDate='';
+  if(showRemind&&formState.date){
+    try{remindDate=fmtShort(addDays(new Date(formState.date+'T12:00:00'),-remindDays));}catch(e){}
+  }
+
+  const typePills = EVENT_TYPES.map(t=>
+    `<button class="pill${formState.type===t.id?' on':''}" onclick="setFormType('${t.id}')">${t.icon} ${t.label}</button>`
+  ).join('');
+
+  const assignChips = Object.entries(USERS).map(([uid,u])=>
+    `<div class="a-chip${formState.assignedTo.includes(uid)?' on':''}" onclick="toggleFormAssign('${uid}')">
+      <div class="a-av" style="background:${u.color}">${u.name[0]}</div>
+      <span class="a-name">${u.name}</span>
+    </div>`
+  ).join('');
+
+  return`<div class="card">
+    <div class="card-hdr">📅 New event</div>
+    <div style="padding:14px">
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="f-title" value="${formState.title}" oninput="formState.title=this.value" placeholder="e.g. Sports Day"/>
+      </div>
+      <div class="field">
+        <label>Event type</label>
+        <div class="pill-row">${typePills}</div>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="f-date" value="${formState.date}" oninput="formState.date=this.value;renderRemindDate()"/>
+      </div>
+      <div class="field">
+        <div class="tog-row">
+          <span class="tog-label">All day event</span>
+          <div class="tog${formState.allDay?' on':''}" onclick="toggleAllDay()"><div class="tok"></div></div>
+        </div>
+      </div>
+      ${!formState.allDay?`<div class="time-row">
+        <div class="field"><label>Start</label><input type="time" id="f-start" value="${formState.startTime}" oninput="formState.startTime=this.value"/></div>
+        <div class="field"><label>End</label><input type="time" id="f-end" value="${formState.endTime}" oninput="formState.endTime=this.value"/></div>
+      </div>`:''}
+      <div class="field">
+        <label>Assign to</label>
+        <div class="assign-row">${assignChips}</div>
+      </div>
+      <div class="field">
+        <label>Location (optional)</label>
+        <input type="text" id="f-loc" value="${formState.location}" oninput="formState.location=this.value" placeholder="e.g. Leisure Centre"/>
+      </div>
+      <div class="field">
+        <label>Notes (optional)</label>
+        <input type="text" id="f-notes" value="${formState.notes}" oninput="formState.notes=this.value" placeholder="Any extra details…"/>
+      </div>
+      ${showRemind?`<div class="remind-box" style="background:${remindBg}">
+        <div class="rb-title" style="color:${remindTc}">${isBday?'🎁 Shopping list reminder':'✅ To-do prep task'}</div>
+        <div class="rb-body" style="color:${remindTc}">
+          ${isBday
+            ?'A gift reminder will be added to the Shopping List this many days before:'
+            :'A prep task will be added to the To-Do list this many days before:'}
+        </div>
+        <div class="xp-ctrl">
+          <input type="range" min="1" max="${remindMax}" step="1" value="${remindDays}" style="accent-color:${remindColor}"
+            oninput="formState.remindDays=parseInt(this.value);document.getElementById('rdval').textContent=this.value+' days';renderRemindDate()"/>
+          <span class="xp-ctrl-val" id="rdval" style="color:${remindTc}">${remindDays} days</span>
+        </div>
+        <div class="rb-date" style="color:${remindTc}" id="remind-date-label">
+          ${remindDate?`Reminder appears: ${remindDate}`:''}
+        </div>
+      </div>`:''}
+      <div class="btn-row">
+        <button class="btn btn-cancel" onclick="setView('day')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitEvent()">Add event</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ─── Dashboard view ─── */
+function renderDashboard(){
+  const todayEvs = eventsForDay(TODAY);
+  const morning  = todayEvs.filter(e=>timePeriod(e)==='morning');
+  const afternoon= todayEvs.filter(e=>timePeriod(e)==='afternoon');
+  const evening  = todayEvs.filter(e=>timePeriod(e)==='evening');
+  const tomorrow = eventsForDay(addDays(TODAY,1));
+
+  function period(label,cls,evs){
+    const rows = evs.length
+      ? evs.map(e=>`<div class="dash-event row-sep">
+          <div class="dash-event-icon">${TYPE_ICON[e.type]||'📌'}</div>
+          <div class="dash-event-info">
+            <div class="dash-event-title">${e.title}</div>
+            <div class="dash-event-meta">${e.allDay?'All day':fmtTime(e.startTime)}${e.location?' · '+e.location:''}</div>
+          </div>
+          <div class="event-avatars">${avatarsHtml(e.assignedTo,20)}</div>
+        </div>`).join('')
+      : `<div class="dash-empty">Nothing planned</div>`;
+    return`<div class="card"><div class="card-hdr ${cls}">${label}</div>${rows}</div>`;
+  }
+
+  const tomorrowRows = tomorrow.length
+    ? tomorrow.map(e=>`<div class="dash-event row-sep">
+        <div class="dash-event-icon">${TYPE_ICON[e.type]||'📌'}</div>
+        <div class="dash-event-info">
+          <div class="dash-event-title">${e.title}</div>
+          <div class="dash-event-meta">${e.allDay?'All day':fmtTime(e.startTime)}</div>
+        </div>
+      </div>`).join('')
+    : `<div class="dash-empty">Nothing planned yet</div>`;
+
+  return`<div class="dash-title">
+    <div class="dt-date">${fmtDate(TODAY)}</div>
+    <div class="dt-heading">Today's plan</div>
+  </div>
+  ${period('🌅 Morning','morning',morning)}
+  ${period('☀️ Afternoon','afternoon',afternoon)}
+  ${period('🌙 Evening','evening',evening)}
+  <div class="card">
+    <div class="card-hdr tomorrow">📋 Tomorrow — ${fmtShort(addDays(TODAY,1))}</div>
+    ${tomorrowRows}
+  </div>`;
+}
+
+/* ─── Actions ─── */
+function selectDay(ts){
+  selectedDay=new Date(ts);
+  if(view==='add')resetForm();
+  view='day';
+  save();render();
+}
+
+function prevWeek(){weekAnchor=addDays(weekAnchor,-7);render();}
+function nextWeek(){weekAnchor=addDays(weekAnchor,7);render();}
+function goToday(){selectedDay=new Date(TODAY);weekAnchor=new Date(TODAY);view='day';render();}
+
+function setView(v){
+  if(v==='add')resetForm();
+  view=v;render();
+}
+
+function openEvent(id){
+  selectedEvent=events.find(e=>e.id===id);
+  if(selectedEvent){view='detail';render();}
+}
+
+function setFormType(t){
+  formState.type=t;
+  formState.remindDays=t==='birthday'?30:t==='school'?3:0;
+  render();
+}
+
+function toggleAllDay(){formState.allDay=!formState.allDay;render();}
+
+function toggleFormAssign(uid){
+  const i=formState.assignedTo.indexOf(uid);
+  if(i>-1){if(formState.assignedTo.length>1)formState.assignedTo.splice(i,1);}
+  else formState.assignedTo.push(uid);
+  document.querySelectorAll('.a-chip').forEach(c=>{
+    c.classList.toggle('on',formState.assignedTo.includes(c.getAttribute('onclick').match(/'(\w+)'/)[1]));
+  });
+}
+
+function renderRemindDate(){
+  const el=document.getElementById('remind-date-label');
+  if(!el)return;
+  const d=document.getElementById('f-date')?.value||formState.date;
+  if(!d)return;
+  try{
+    const rd=formState.remindDays||(formState.type==='birthday'?30:3);
+    el.textContent='Reminder appears: '+fmtShort(addDays(new Date(d+'T12:00:00'),-rd));
+  }catch(e){}
+}
+
+function submitEvent(){
+  const title=(document.getElementById('f-title')?.value||formState.title).trim();
+  if(!title){showToast('Please add a title');return;}
+  const date=new Date((document.getElementById('f-date')?.value||formState.date)+'T12:00:00');
+  const ne={
+    id:'u'+Date.now(),
+    title,
+    date,
+    startTime:formState.startTime,
+    endTime:formState.endTime,
+    allDay:formState.allDay,
+    type:formState.type,
+    assignedTo:[...formState.assignedTo],
+    location:formState.location,
+    notes:formState.notes,
+    remindDays:formState.remindDays||(formState.type==='birthday'?30:formState.type==='school'?3:0),
+  };
+  events.push(ne);
+  selectedDay=new Date(date);
+  weekAnchor=new Date(date);
+  view='day';
+  save();
+
+  if(ne.type==='birthday'&&ne.remindDays>0){
+    showToast(`🎁 Gift reminder set ${ne.remindDays} days before`);
+  }else if(ne.type==='school'&&ne.remindDays>0){
+    showToast(`✅ Prep task set ${ne.remindDays} days before`);
+  }else{
+    showToast('Event added!');
+  }
+  render();
+}
+
+function navPage(p){showToast(p.charAt(0).toUpperCase()+p.slice(1)+' — tap nav when integrated');}
+
+/* ─── Toast ─── */
+let toastTimer;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ─── Service worker ─── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+
+/* ─── Boot ─── */
+load();resetForm();render();
+</script>
+</body>
+</html>
