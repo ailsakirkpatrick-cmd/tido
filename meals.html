@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Tido"/>
+<meta name="theme-color" content="#7F77DD"/>
+<title>Tido — Meals</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --mum:#7F77DD;--dad:#1D9E75;--sophie:#D05A8A;--olivia:#9B6FD4;
+  --acc:#7F77DD;--acc-s:#EEEDFE;--acc-d:#3C3489;
+  --glass:rgba(255,255,255,0.72);--gb:rgba(180,160,220,0.2);
+  --tx:#3a3060;--txs:#9088b0;--txh:#c0b8d8;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--tx);display:flex;flex-direction:column;max-width:430px;margin:0 auto;background:linear-gradient(160deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%);}
+body::before{content:'';position:fixed;inset:0;background:inherit;z-index:-1;}
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+.top-bar{background:var(--glass);border-bottom:0.5px solid var(--gb);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 14px 12px;flex-shrink:0;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 0;}
+.scroll::-webkit-scrollbar{display:none;}
+.bot-bar{background:var(--glass);border-top:0.5px solid var(--gb);backdrop-filter:blur(12px);padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
+.status{background:rgba(255,255,255,0.55);padding:8px 18px;display:flex;justify-content:space-between;}
+.status span{font-size:12px;font-weight:500;color:var(--txs);}
+
+/* users */
+.users{display:flex;gap:6px;margin-bottom:12px;}
+.ubtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;padding:5px 3px;border-radius:12px;transition:background 0.15s;font-family:inherit;}
+.ubtn.on{background:rgba(255,255,255,0.9);}
+.avw{position:relative;width:38px;height:38px;}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,0.4);transition:transform 0.15s;}
+.ubtn.on .av{transform:scale(1.08);border-color:#fff;}
+.bicon{position:absolute;bottom:-2px;right:-4px;font-size:12px;}
+.uname{font-size:10px;color:var(--txs);}
+.ubtn.on .uname{color:var(--acc);font-weight:700;}
+.grt{display:flex;align-items:center;justify-content:space-between;}
+.gname{font-size:18px;font-weight:700;color:var(--tx);}
+.role-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.85);border:0.5px solid var(--gb);border-radius:20px;padding:5px 11px;}
+.role-chip span{font-size:12px;font-weight:700;color:var(--acc-d);}
+
+/* cards */
+.card{background:var(--glass);border-radius:14px;border:0.5px solid var(--gb);overflow:hidden;margin-bottom:10px;backdrop-filter:blur(6px);}
+.chdr{padding:9px 12px;border-bottom:0.5px solid rgba(180,160,220,0.12);font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.07em;}
+.rsep{border-bottom:0.5px solid rgba(180,160,220,0.09);}
+
+/* progress */
+.prog-wrap{padding:10px 12px;}
+.prog-top{display:flex;justify-content:space-between;margin-bottom:5px;}
+.prog-label{font-size:13px;font-weight:700;color:var(--tx);}
+.prog-count{font-size:11px;color:var(--txs);}
+.prog-track{height:7px;background:rgba(180,160,220,0.18);border-radius:7px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:7px;background:var(--acc);transition:width 0.4s;}
+
+/* meal slots */
+.day-block{margin-bottom:10px;}
+.day-label{font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
+.day-label.wknd{color:var(--acc);}
+.meal-type-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:4px;}
+.meal-type-lbl{font-size:10px;color:var(--txs);width:52px;flex-shrink:0;padding-top:9px;text-transform:capitalize;}
+.meal-slot-wrap{flex:1;}
+.meal-slot-filled{background:rgba(255,255,255,0.88);border-radius:10px;padding:8px 10px;}
+.meal-slot-filled.kids-pick{border:1.5px solid var(--acc);}
+.kids-pick-label{font-size:9px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;}
+.meal-slot-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.3;}
+.meal-slot-actions{display:flex;align-items:center;gap:4px;margin-top:2px;}
+.vote-btn{border:none;background:none;cursor:pointer;font-size:13px;padding:2px;opacity:0.4;transition:opacity 0.15s;}
+.vote-btn.voted{opacity:1;}
+.vote-count{font-size:10px;color:var(--txs);min-width:10px;}
+.clear-btn{border:none;background:none;cursor:pointer;font-size:14px;color:var(--txh);padding:2px;margin-left:auto;}
+.meal-slot-empty{width:100%;padding:8px 10px;border-radius:10px;border:1.5px dashed rgba(180,160,220,0.3);background:rgba(255,255,255,0.4);color:var(--txs);font-size:12px;cursor:pointer;font-family:inherit;text-align:left;}
+
+/* request alert */
+.req-alert{width:100%;border:1.5px solid #E07B3A;background:#FFF7ED;border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;margin-bottom:10px;}
+.req-alert span{font-size:13px;font-weight:600;color:#854F0B;}
+
+/* action btns */
+.action-row{display:flex;gap:8px;margin-bottom:12px;}
+.btn{padding:11px 16px;border-radius:11px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.12s;}
+.btn:active{opacity:0.8;}
+.btn-p{background:var(--acc);color:#fff;}
+.btn-s{background:rgba(240,238,248,0.9);color:var(--txs);border:0.5px solid var(--gb);}
+.btn-g{background:#1D9E75;color:#fff;}
+
+/* add tabs */
+.add-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.add-tab{flex:1;padding:8px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:rgba(255,255,255,0.6);color:var(--txs);transition:all 0.15s;}
+.add-tab.on{background:var(--acc);color:#fff;}
+
+/* form */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+.field input,.field select{width:100%;border:0.5px solid rgba(180,160,220,0.3);border-radius:10px;padding:9px 12px;font-size:14px;background:rgba(255,255,255,0.85);color:var(--tx);font-family:inherit;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--acc);}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;}
+.tog-label{font-size:13px;color:var(--tx);}
+.tog{width:34px;height:20px;background:rgba(180,160,220,0.22);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.tog.on{background:var(--acc);}
+.tok{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.2s;pointer-events:none;}
+.tog.on .tok{transform:translateX(14px);}
+.btn-row{display:flex;gap:8px;}
+.kid-note{background:var(--acc-s);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--acc-d);font-weight:500;margin-bottom:12px;}
+
+/* recipe rows */
+.recipe-row{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;transition:background 0.1s;}
+.recipe-row:hover{background:rgba(255,255,255,0.5);}
+
+/* suggestions */
+.sug-card{background:var(--glass);border-radius:12px;border:0.5px solid var(--gb);overflow:hidden;margin-bottom:8px;cursor:pointer;transition:all 0.15s;}
+.sug-card:hover{background:rgba(255,255,255,0.9);}
+.sug-body{display:flex;align-items:center;gap:10px;padding:11px 12px;}
+.sug-icon{width:42px;height:42px;border-radius:10px;background:var(--acc-s);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.sug-info{flex:1;min-width:0;}
+.sug-name{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.sug-reason{font-size:11px;color:var(--txs);margin-bottom:4px;}
+.sug-tag{font-size:10px;background:var(--acc-s);color:var(--acc-d);border-radius:6px;padding:1px 6px;font-weight:700;display:inline-block;}
+.sug-add{font-size:20px;color:var(--acc);flex-shrink:0;}
+.loading-card{background:var(--glass);border-radius:14px;padding:28px 16px;text-align:center;border:0.5px solid var(--gb);margin-bottom:10px;}
+.loading-icon{font-size:28px;margin-bottom:10px;display:block;}
+.loading-dots{display:flex;justify-content:center;gap:6px;margin-top:12px;}
+.loading-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);opacity:0.4;animation:pulse 1.2s infinite;}
+.loading-dot:nth-child(2){animation-delay:0.2s;}
+.loading-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1);}50%{opacity:1;transform:scale(1.2);}}
+
+/* requests */
+.req-card{border-radius:12px;border:0.5px solid var(--gb);overflow:hidden;margin-bottom:8px;background:var(--glass);}
+.req-card.pending{border-color:#E07B3A;}
+.req-body{padding:12px;}
+.req-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.req-icon{width:36px;height:36px;border-radius:9px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.req-info{flex:1;}
+.req-name{font-size:14px;font-weight:600;color:var(--tx);}
+.req-meta{font-size:11px;color:var(--txs);}
+.status-pill{font-size:11px;border-radius:6px;padding:2px 8px;font-weight:700;}
+.status-approved{background:#E1F5EE;color:#085041;}
+.status-declined{background:#FAECE7;color:#712B13;}
+
+/* shopping */
+.shop-item{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;transition:background 0.1s;}
+.shop-item:hover{background:rgba(255,255,255,0.5);}
+.shop-check{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(160,140,210,0.38);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.18s;}
+.shop-check.done{background:var(--acc);border-color:var(--acc);}
+.shop-name{font-size:13px;color:var(--tx);transition:all 0.18s;}
+.shop-name.done{text-decoration:line-through;color:var(--txh);}
+.shop-summary{background:var(--acc-s);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--acc-d);font-weight:600;}
+
+/* nav */
+.nav{display:flex;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;padding:4px;font-family:inherit;}
+.nb .ni{font-size:20px;color:var(--txh);}
+.nb .nl{font-size:10px;color:var(--txh);}
+.nb.on .ni,.nb.on .nl{color:var(--acc);}
+
+/* toast */
+.toast{position:fixed;top:calc(var(--safe-top)+60px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--acc);color:#fff;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.empty-state{text-align:center;padding:28px 16px;color:var(--txh);font-size:14px;}
+.back-btn{width:100%;padding:12px;border-radius:12px;border:0.5px solid var(--gb);background:rgba(240,238,248,0.9);color:var(--txs);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="status"><span id="clock">9:41</span><span style="font-weight:700;color:var(--tx)">Tido</span><span>100%</span></div>
+    <div class="users" id="users"></div>
+    <div class="grt">
+      <div><div style="font-size:10px;color:var(--txh);margin-bottom:2px">Week of 23 June</div><div class="gname">🍽️ Meal Planner</div></div>
+      <div class="role-chip"><span id="role-icon">👨‍🍳</span><span id="role-label">Planner</span></div>
+    </div>
+  </div>
+  <div class="scroll" id="main"></div>
+  <div class="bot-bar"><div class="nav" id="nav"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Config ── */
+const USERS={
+  mum:   {name:'Mum',   color:'#7F77DD',soft:'#EEEDFE',dark:'#3C3489',isKid:false},
+  dad:   {name:'Dad',   color:'#1D9E75',soft:'#E1F5EE',dark:'#085041',isKid:false},
+  sophie:{name:'Sophie',color:'#D05A8A',soft:'#FBEAF0',dark:'#72243E',isKid:true, emoji:'🐱'},
+  olivia:{name:'Olivia',color:'#9B6FD4',soft:'#F0EBFB',dark:'#5B3A8A',isKid:true, emoji:'🌸'},
+};
+const WEEKDAYS=['Mon','Tue','Wed','Thu','Fri'];
+const WEEKEND=['Sat','Sun'];
+const ALL_DAYS=[...WEEKDAYS,...WEEKEND];
+function getMealTypes(day){return WEEKDAYS.includes(day)?['dinner']:['breakfast','lunch','dinner'];}
+
+/* ── State ── */
+let cur='mum',view='plan',addTab='free',activeSlot=null,reqSlot='Thu-dinner';
+let freeText='',saveToDb=false,newFav=false,reqText='';
+let suggestions=[],aiLoading=false,aiError='';
+
+let meals=[
+  {id:'m1',name:'Spaghetti Bolognese',isFav:true, lastServed:20},
+  {id:'m2',name:'Chicken Stir Fry',   isFav:true, lastServed:5},
+  {id:'m3',name:'Fish and Chips',     isFav:false,lastServed:14},
+  {id:'m4',name:'Homemade Pizza',     isFav:true, lastServed:10},
+  {id:'m5',name:'Roast Chicken',      isFav:true, lastServed:21},
+  {id:'m6',name:'Beef Tacos',         isFav:false,lastServed:7},
+  {id:'m7',name:'Salmon with Veg',    isFav:false,lastServed:3},
+  {id:'m8',name:'Mac and Cheese',     isFav:true, lastServed:18},
+  {id:'m9',name:'Chicken Curry',      isFav:true, lastServed:25},
+  {id:'m10',name:'Veggie Stir Fry',   isFav:false,lastServed:30},
+  {id:'m11',name:'Lasagne',           isFav:true, lastServed:35},
+  {id:'m12',name:'BBQ Sausages',      isFav:false,lastServed:8},
+  {id:'m13',name:'Pancakes',          isFav:true, lastServed:12},
+  {id:'m14',name:'Scrambled Eggs',    isFav:false,lastServed:4},
+  {id:'m15',name:'Tomato Soup',       isFav:false,lastServed:9},
+];
+
+let plan={
+  'Mon-dinner':  {mealName:'Chicken Stir Fry', mealId:'m2',votes:{sophie:1,olivia:1,dad:1}},
+  'Tue-dinner':  {mealName:'Salmon with Veg',  mealId:'m7',votes:{sophie:-1,olivia:-1}},
+  'Wed-dinner':  {mealName:'Beef Tacos',       mealId:'m6',votes:{sophie:1,olivia:1,mum:1,dad:1}},
+  'Thu-dinner':  null,
+  'Fri-dinner':  {mealName:'Fish and Chips',   mealId:'m3',votes:{}},
+  'Sat-breakfast':{mealName:'Pancakes',        mealId:'m13',votes:{sophie:1,olivia:1}},
+  'Sat-lunch':   null,
+  'Sat-dinner':  {mealName:'Homemade Pizza',   mealId:'m4',votes:{sophie:1,olivia:1,mum:1,dad:1},kidsChoice:true},
+  'Sun-breakfast':null,
+  'Sun-lunch':   {mealName:'Tomato Soup',      mealId:'m15',votes:{}},
+  'Sun-dinner':  {mealName:'Roast Chicken',    mealId:'m5',votes:{mum:1,dad:1}},
+};
+
+let requests=[
+  {id:'r1',mealName:'Spaghetti Bolognese',requestedBy:'sophie',requestedFor:'Thu-dinner',status:'pending',parentNote:''},
+];
+
+let shopItems=[];
+
+/* ── Storage ── */
+function save(){
+  try{
+    localStorage.setItem('tido_meals_plan',JSON.stringify(plan));
+    localStorage.setItem('tido_meals_db',JSON.stringify(meals));
+    localStorage.setItem('tido_meals_reqs',JSON.stringify(requests));
+    localStorage.setItem('tido_meals_cur',cur);
+  }catch(e){}
+}
+function load(){
+  try{
+    const p=localStorage.getItem('tido_meals_plan');
+    const m=localStorage.getItem('tido_meals_db');
+    const r=localStorage.getItem('tido_meals_reqs');
+    const c=localStorage.getItem('tido_meals_cur');
+    if(p)plan=JSON.parse(p);
+    if(m)meals=JSON.parse(m);
+    if(r)requests=JSON.parse(r);
+    if(c)cur=c;
+  }catch(e){}
+}
+
+/* ── Helpers ── */
+function isKid(){return USERS[cur].isKid;}
+function pendingReqs(){return requests.filter(r=>r.status==='pending');}
+function plannedCount(){return Object.values(plan).filter(Boolean).length;}
+function totalSlots(){return Object.keys(plan).length;}
+
+function applyAccent(){
+  const u=USERS[cur];
+  document.documentElement.style.setProperty('--acc',u.color);
+  document.documentElement.style.setProperty('--acc-s',u.soft);
+  document.documentElement.style.setProperty('--acc-d',u.dark);
+}
+
+function setUser(u){cur=u;applyAccent();view='plan';save();render();}
+
+function addMealToSlot(slot,mealName,mealId=null){
+  plan[slot]={mealName,mealId:mealId||'custom',votes:{}};
+  showToast(mealName+' added!');
+  view='plan';activeSlot=null;
+  save();render();
+}
+
+function clearSlot(slot){
+  plan[slot]=null;
+  showToast('Meal removed');
+  save();render();
+}
+
+function vote(slot,val){
+  if(!plan[slot])return;
+  const votes=plan[slot].votes||{};
+  votes[cur]=votes[cur]===val?0:val;
+  plan[slot].votes=votes;
+  save();render();
+}
+
+function approveRequest(id){
+  const req=requests.find(r=>r.id===id);
+  if(!req)return;
+  addMealToSlot(req.requestedFor,req.mealName);
+  requests=requests.map(r=>r.id===id?{...r,status:'approved'}:r);
+  showToast('Request approved ✓');
+  save();render();
+}
+
+function declineRequest(id){
+  requests=requests.map(r=>r.id===id?{...r,status:'declined'}:r);
+  showToast('Request declined');
+  save();render();
+}
+
+function submitRequest(){
+  if(!reqText.trim())return;
+  requests=[{id:'r'+Date.now(),mealName:reqText.trim(),requestedBy:cur,requestedFor:reqSlot,status:'pending',parentNote:''},...requests];
+  reqText='';
+  showToast('Request sent to parents! 🍽️');
+  view='plan';save();render();
+}
+
+function buildShoppingList(){
+  const planned=Object.values(plan).filter(Boolean).map(p=>p.mealName);
+  shopItems=planned.map(m=>({name:'Ingredients for '+m,checked:false}));
+  view='shopping';render();
+}
+
+function toggleShopItem(i){
+  shopItems[i].checked=!shopItems[i].checked;
+  render();
+}
+
+function confirmShopping(){
+  const needed=shopItems.filter(i=>!i.checked).length;
+  showToast(needed+' item'+(needed!==1?'s':'')+' sent to Shopping List ✓');
+  view='plan';render();
+}
+
+/* ── AI suggestions ── */
+async function fetchSuggestions(){
+  aiLoading=true;aiError='';suggestions=[];
+  view='suggest';render();
+  const plannedNames=Object.values(plan).filter(Boolean).map(p=>p.mealName);
+  const allMeals=meals.map(m=>`${m.name}${m.isFav?' (favourite)':''} [last served ${m.lastServed} days ago]`).join('\n');
+  const month=new Date().getMonth();
+  const season=month>=3&&month<=8?'summer':'winter';
+  const prompt=`You are a helpful family meal planner for a busy UK family of 4 (two adults, two kids aged 5 and 7).
+
+Current week already planned: ${plannedNames.length?plannedNames.join(', '):'Nothing yet'}
+
+Family meal database:
+${allMeals}
+
+Rules:
+- Prioritise meals not served in 14+ days
+- Mark family favourites with isFav:true
+- It is ${season} in the UK — suggest seasonally appropriate meals
+- Mix quick weeknight and weekend-special options
+- Keep kid-friendly
+- Do NOT suggest meals already in this week's plan
+
+Return ONLY a valid JSON array of exactly 6 objects. No markdown, no explanation.
+Each object: {"name":"string","reason":"string (max 12 words)","isFav":boolean,"time":"quick"|"medium"|"weekend special"}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=data.content?.find(b=>b.type==='text')?.text||'[]';
+    suggestions=JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch(e){
+    aiError='Couldn\'t load suggestions. Try again or add a meal manually.';
+  }
+  aiLoading=false;render();
+}
+
+/* ── Clock ── */
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+setInterval(tick,30000);tick();
+
+/* ── Toast ── */
+let toastT;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ── Render ── */
+function render(){
+  renderUsers();
+  document.getElementById('role-icon').textContent=isKid()?'🍽️':'👨‍🍳';
+  document.getElementById('role-label').textContent=isKid()?'Viewer':'Planner';
+  renderNav();
+  const m=document.getElementById('main');
+  if(view==='plan')      m.innerHTML=renderPlan();
+  else if(view==='add')  m.innerHTML=renderAdd();
+  else if(view==='suggest')m.innerHTML=renderSuggest();
+  else if(view==='requests')m.innerHTML=renderRequests();
+  else if(view==='request')m.innerHTML=renderRequest();
+  else if(view==='shopping')m.innerHTML=renderShopping();
+}
+
+function renderUsers(){
+  document.getElementById('users').innerHTML=Object.entries(USERS).map(([uid,u])=>`
+    <button class="ubtn ${cur===uid?'on':''}" onclick="setUser('${uid}')">
+      <div class="avw">
+        <div class="av" style="background:${u.color}">${u.name[0]}</div>
+        ${u.emoji?`<span class="bicon">${u.emoji}</span>`:''}
+      </div>
+      <span class="uname">${u.name}</span>
+    </button>`).join('');
+}
+
+function renderNav(){
+  document.getElementById('nav').innerHTML=[['✅','Tasks'],['🎁','Rewards'],['📅','Calendar'],['🍽️','Meals']].map(([icon,label],i)=>
+    `<button class="nb ${i===3?'on':''}" onclick="showToast('${label} tab')">
+      <span class="ni">${icon}</span><span class="nl">${label}</span>
+    </button>`).join('');
+}
+
+function renderPlan(){
+  const pct=Math.round(plannedCount()/totalSlots()*100);
+  const pending=pendingReqs();
+  let html=`<div class="card">
+    <div class="prog-wrap">
+      <div class="prog-top"><span class="prog-label">Week of 23 June</span><span class="prog-count">${plannedCount()} / ${totalSlots()} planned</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>
+  </div>`;
+
+  if(!isKid()&&pending.length){
+    html+=`<button class="req-alert" onclick="view='requests';render()">
+      <span>🍽️ ${pending.length} meal request${pending.length!==1?'s':''} waiting</span>
+      <span style="font-size:16px;color:#E07B3A">›</span>
+    </button>`;
+  }
+
+  // Weekdays
+  html+=`<div class="card"><div class="chdr">🍽️ Weekday dinners</div><div style="padding:8px 12px 10px">`;
+  WEEKDAYS.forEach(day=>{
+    html+=`<div class="day-block"><div class="day-label">${day}</div>${slotHtml(day,'dinner')}</div>`;
+  });
+  html+=`</div></div>`;
+
+  // Weekend
+  html+=`<div class="card"><div class="chdr">🌅 Weekend meals</div><div style="padding:8px 12px 10px">`;
+  WEEKEND.forEach(day=>{
+    html+=`<div class="day-block"><div class="day-label wknd">${day}</div>`;
+    ['breakfast','lunch','dinner'].forEach(type=>{
+      html+=`<div class="meal-type-row"><span class="meal-type-lbl">${type}</span><div class="meal-slot-wrap">${slotHtml(day,type)}</div></div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div></div>`;
+
+  if(!isKid()){
+    html+=`<div class="action-row">
+      <button class="btn btn-p" style="flex:1" onclick="fetchSuggestions()">🤖 AI suggestions</button>
+      <button class="btn btn-s" style="flex:1" onclick="buildShoppingList()">🛒 Shopping list</button>
+    </div>`;
+  }
+  return html;
+}
+
+function slotHtml(day,type){
+  const slot=`${day}-${type}`;
+  const entry=plan[slot];
+  if(entry){
+    const upCount=Object.values(entry.votes||{}).filter(v=>v===1).length;
+    const dnCount=Object.values(entry.votes||{}).filter(v=>v===-1).length;
+    const myVote=entry.votes?.[cur]||0;
+    return`<div class="meal-slot-filled ${entry.kidsChoice?'kids-pick':''}">
+      ${entry.kidsChoice?'<div class="kids-pick-label">⭐ Kids\' pick</div>':''}
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
+        <div class="meal-slot-title" style="flex:1">${entry.mealName}</div>
+        <div class="meal-slot-actions">
+          <button class="vote-btn ${myVote===1?'voted':''}" onclick="vote('${slot}',1)">👍</button>
+          <span class="vote-count">${upCount||''}</span>
+          <button class="vote-btn ${myVote===-1?'voted':''}" onclick="vote('${slot}',-1)">👎</button>
+          <span class="vote-count">${dnCount||''}</span>
+          ${!isKid()?`<button class="clear-btn" onclick="clearSlot('${slot}')">×</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+  if(isKid()){
+    return`<button class="meal-slot-empty" onclick="reqSlot='${slot}';view='request';render()">+ Request a meal…</button>`;
+  }
+  return`<button class="meal-slot-empty" onclick="activeSlot='${slot}';addTab='free';freeText='';view='add';render()">+ Add meal…</button>`;
+}
+
+function renderAdd(){
+  let html=`<div class="add-tabs">
+    <button class="add-tab ${addTab==='free'?'on':''}" onclick="addTab='free';render()">✏️ Type it</button>
+    <button class="add-tab ${addTab==='db'?'on':''}" onclick="addTab='db';render()">📖 Recipes</button>
+  </div>`;
+
+  if(addTab==='free'){
+    html+=`<div class="card"><div class="chdr">Add a meal</div><div style="padding:12px">
+      <div class="field"><label>Meal name</label>
+        <input type="text" value="${freeText}" oninput="freeText=this.value" placeholder="e.g. Chicken pasta bake"/>
+      </div>
+      <div class="tog-row">
+        <span class="tog-label">Save to recipe database</span>
+        <div class="tog ${saveToDb?'on':''}" onclick="saveToDb=!saveToDb;render()"><div class="tok"></div></div>
+      </div>
+      ${saveToDb?`<div class="tog-row">
+        <span class="tog-label">Mark as family favourite ⭐</span>
+        <div class="tog ${newFav?'on':''}" onclick="newFav=!newFav;render()"><div class="tok"></div></div>
+      </div>`:''}
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-s" onclick="view='plan';render()">Cancel</button>
+        <button class="btn btn-p" onclick="submitFreeText()">Add meal</button>
+      </div>
+    </div></div>`;
+  } else {
+    html+=`<div class="card"><div class="chdr">📖 Recipe database (${meals.length})</div>`;
+    meals.forEach(m=>{
+      html+=`<div class="recipe-row rsep" onclick="addMealToSlot(activeSlot,'${m.name.replace(/'/g,"\\'")}','${m.id}')">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--tx)">${m.isFav?'⭐ ':''}${m.name}</div>
+          <div style="font-size:11px;color:var(--txs)">Last served ${m.lastServed} days ago</div>
+        </div>
+        <span style="font-size:18px;color:var(--acc)">+</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  return html;
+}
+
+function submitFreeText(){
+  if(!freeText.trim())return;
+  if(saveToDb){
+    meals=[...meals,{id:'m'+Date.now(),name:freeText.trim(),isFav:newFav,lastServed:0}];
+  }
+  addMealToSlot(activeSlot,freeText.trim());
+  freeText='';saveToDb=false;newFav=false;
+}
+
+function renderSuggest(){
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:16px;font-weight:700;color:var(--tx)">🤖 AI meal suggestions</div>
+    <button class="btn btn-s" style="padding:6px 12px;font-size:12px" onclick="fetchSuggestions()">Refresh</button>
+  </div>`;
+
+  if(aiLoading){
+    html+=`<div class="loading-card">
+      <span class="loading-icon">🤔</span>
+      <div style="font-size:14px;color:var(--txs);margin-bottom:4px">Thinking about your family's favourites…</div>
+      <div style="font-size:12px;color:var(--txh)">Checking what you haven't had recently</div>
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>`;
+  } else if(aiError){
+    html+=`<div class="card" style="padding:16px;background:#FFF7ED;border-color:rgba(224,140,80,0.3)">
+      <div style="font-size:13px;color:#854F0B;margin-bottom:10px">${aiError}</div>
+      <button class="btn btn-p" style="width:100%" onclick="fetchSuggestions()">Try again</button>
+    </div>`;
+  } else if(suggestions.length){
+    html+=`<div style="font-size:12px;color:var(--txs);margin-bottom:8px">Tap a meal to add it to the next empty slot</div>`;
+    suggestions.forEach((s,i)=>{
+      html+=`<div class="sug-card" onclick="addSuggestion('${s.name.replace(/'/g,"\\'")}')">
+        <div class="sug-body">
+          <div class="sug-icon">${s.isFav?'⭐':'🍽️'}</div>
+          <div class="sug-info">
+            <div class="sug-name">${s.name}</div>
+            <div class="sug-reason">${s.reason}</div>
+            <span class="sug-tag">${s.time||'meal'}</span>
+          </div>
+          <span class="sug-add">+</span>
+        </div>
+      </div>`;
+    });
+  }
+
+  html+=`<button class="back-btn" onclick="view='plan';render()">← Back to plan</button>`;
+  return html;
+}
+
+function addSuggestion(name){
+  const emptySlot=ALL_DAYS.flatMap(d=>getMealTypes(d).map(t=>`${d}-${t}`)).find(k=>!plan[k]);
+  if(emptySlot){addMealToSlot(emptySlot,name);}
+  else{showToast('All slots filled — clear one first!');}
+}
+
+function renderRequests(){
+  const all=requests;
+  let html=`<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:10px">🍽️ Meal requests</div>`;
+  if(!all.length){
+    html+=`<div class="card"><div class="empty-state">No meal requests yet</div></div>`;
+  }
+  all.forEach(r=>{
+    const u=USERS[r.requestedBy];
+    html+=`<div class="req-card ${r.status==='pending'?'pending':''}">
+      <div class="req-body">
+        <div class="req-top">
+          <div class="req-icon">🍽️</div>
+          <div class="req-info">
+            <div class="req-name">${r.mealName}</div>
+            <div class="req-meta">From <strong style="color:${u.color}">${u.name}</strong> · ${r.requestedFor.replace('-',' ')}</div>
+          </div>
+          ${r.status!=='pending'?`<span class="status-pill status-${r.status}">${r.status==='approved'?'Approved':'Declined'}</span>`:''}
+        </div>
+        ${r.status==='pending'?`<div class="btn-row">
+          <button class="btn btn-s" style="flex:1;padding:8px" onclick="declineRequest('${r.id}')">Decline</button>
+          <button class="btn btn-g" style="flex:1;padding:8px" onclick="approveRequest('${r.id}')">Approve ✓</button>
+        </div>`:''}
+      </div>
+    </div>`;
+  });
+  html+=`<button class="back-btn" onclick="view='plan';render()">← Back to plan</button>`;
+  return html;
+}
+
+function renderRequest(){
+  const emptySlots=ALL_DAYS.flatMap(d=>getMealTypes(d).map(t=>({slot:`${d}-${t}`,label:`${d} ${t}`}))).filter(s=>!plan[s.slot]);
+  const u=USERS[cur];
+  return`<div class="card"><div class="chdr">🍽️ Request a meal</div><div style="padding:12px">
+    <div class="field"><label>What would you like?</label>
+      <input type="text" value="${reqText}" oninput="reqText=this.value" placeholder="e.g. Spaghetti Bolognese"/>
+    </div>
+    <div class="field"><label>For which meal?</label>
+      <select onchange="reqSlot=this.value">
+        ${emptySlots.map(s=>`<option value="${s.slot}" ${reqSlot===s.slot?'selected':''}>${s.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="kid-note">💡 Mum or Dad will approve your request before it goes on the plan.</div>
+    <div class="btn-row">
+      <button class="btn btn-s" style="flex:1" onclick="view='plan';render()">Cancel</button>
+      <button class="btn btn-p" style="flex:1" onclick="submitRequest()">Send request</button>
+    </div>
+  </div></div>`;
+}
+
+function renderShopping(){
+  const needed=shopItems.filter(i=>!i.checked).length;
+  let html=`<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">🛒 Review shopping list</div>
+  <div style="font-size:12px;color:var(--txs);margin-bottom:10px">Tick anything you already have at home</div>
+  <div class="card"><div class="chdr">This week's meals</div>`;
+  shopItems.forEach((item,i)=>{
+    html+=`<div class="shop-item rsep" onclick="toggleShopItem(${i})">
+      <div class="shop-check ${item.checked?'done':''}">${item.checked?'<span style="color:#fff;font-size:12px">✓</span>':''}</div>
+      <span class="shop-name ${item.checked?'done':''}">${item.name}</span>
+    </div>`;
+  });
+  html+=`</div>
+  <div class="shop-summary">${needed} item${needed!==1?'s':''} will be added to the Shopping List</div>
+  <div class="btn-row" style="margin-bottom:8px">
+    <button class="btn btn-s" style="flex:1" onclick="view='plan';render()">Cancel</button>
+    <button class="btn btn-p" style="flex:1" onclick="confirmShopping()">Confirm & send ✓</button>
+  </div>`;
+  return html;
+}
+
+/* ── Service worker ── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+
+/* ── Boot ── */
+load();applyAccent();render();
+</script>
+</body>
+</html>
