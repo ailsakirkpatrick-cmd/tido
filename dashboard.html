@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Tido"/>
+<meta name="theme-color" content="#7F77DD"/>
+<title>Tido — Dashboard</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --acc:#7F77DD;--acc-s:#EEEDFE;--acc-d:#3C3489;
+  --glass:rgba(255,255,255,0.72);--gb:rgba(180,160,220,0.2);
+  --tx:#3a3060;--txs:#9088b0;--txh:#c0b8d8;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--tx);display:flex;flex-direction:column;margin:0 auto;transition:background 0.1s;}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:var(--bg-grad,linear-gradient(160deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%));}
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+.top-bar{background:var(--glass);border-bottom:0.5px solid var(--gb);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.top-bar-title{font-size:13px;font-weight:700;color:var(--tx);}
+.settings-btn{border:none;background:none;cursor:pointer;font-size:18px;padding:2px;color:var(--txs);}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 0;}
+.scroll::-webkit-scrollbar{display:none;}
+.bot-bar{background:var(--glass);border-top:0.5px solid var(--gb);backdrop-filter:blur(12px);display:flex;padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
+
+/* cards */
+.card{background:var(--glass);border-radius:16px;border:0.5px solid var(--gb);overflow:hidden;margin-bottom:10px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.chdr{padding:9px 14px;border-bottom:0.5px solid rgba(180,160,220,0.12);font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.07em;}
+.rsep{border-bottom:0.5px solid rgba(180,160,220,0.09);}
+
+/* clock */
+.clock-wrap{display:flex;flex-direction:column;align-items:center;padding:14px 0 10px;gap:8px;}
+.clock-date{font-size:13px;color:var(--txs);}
+
+/* weather */
+.weather-card{padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.weather-icon{font-size:32px;}
+.weather-main{flex:1;}
+.weather-temp{font-size:24px;font-weight:700;color:var(--tx);}
+.weather-cond{font-size:13px;color:var(--txs);}
+.weather-loc{font-size:11px;color:var(--txh);}
+.weather-hourly{display:flex;gap:8px;}
+.weather-hour{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.weather-hour .wh-t{font-size:9px;color:var(--txh);}
+.weather-hour .wh-i{font-size:13px;}
+.weather-hour .wh-c{font-size:10px;font-weight:700;color:var(--txs);}
+
+/* dinner */
+.dinner-body{padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.dinner-icon{width:44px;height:44px;border-radius:12px;background:#FAEEDA;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.dinner-name{font-size:16px;font-weight:700;color:var(--tx);}
+.dinner-sub{font-size:12px;color:var(--txs);}
+
+/* calendar slots */
+.period-hdr{padding:5px 14px 3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.event-row{display:flex;align-items:center;gap:8px;padding:7px 14px;}
+.event-type-icon{font-size:14px;flex-shrink:0;}
+.event-info{flex:1;min-width:0;}
+.event-title{font-size:13px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.event-time{font-size:11px;color:var(--txs);}
+.event-avs{display:flex;gap:2px;flex-shrink:0;}
+.event-av{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;}
+.empty-period{padding:6px 14px 8px;font-size:12px;color:var(--txh);}
+
+/* family member rows */
+.member-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background 0.1s;}
+.member-row:hover{background:rgba(255,255,255,0.5);}
+.member-av-wrap{position:relative;flex-shrink:0;}
+.member-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;}
+.member-bicon{position:absolute;bottom:-2px;right:-4px;font-size:10px;}
+.member-info{flex:1;min-width:0;}
+.member-name-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.member-name{font-size:13px;font-weight:700;color:var(--tx);}
+.member-xp{font-size:10px;color:var(--txs);display:flex;align-items:center;gap:2px;}
+.mini-bar-wrap{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.mini-bar-track{flex:1;height:4px;background:rgba(180,160,220,0.18);border-radius:4px;overflow:hidden;}
+.mini-bar-fill{height:100%;border-radius:4px;transition:width 0.4s;}
+.mini-bar-label{font-size:9px;color:var(--txs);white-space:nowrap;}
+.member-chevron{font-size:14px;color:var(--txh);}
+.add-member-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border:none;background:none;cursor:pointer;font-family:inherit;width:100%;font-size:13px;color:var(--acc);font-weight:700;border-top:0.5px solid rgba(180,160,220,0.1);}
+
+/* landscape grid */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* nav */
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;padding:4px;font-family:inherit;}
+.nb .ni{font-size:20px;color:var(--txh);}
+.nb .nl{font-size:10px;color:var(--txh);}
+.nb.on .ni,.nb.on .nl{color:var(--acc);}
+
+/* detail views */
+.back-btn{display:flex;align-items:center;gap:6px;border:none;background:rgba(255,255,255,0.7);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--txs);cursor:pointer;margin-bottom:12px;font-family:inherit;}
+.detail-hero{padding:16px;display:flex;align-items:center;gap:14px;}
+.detail-av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;border:3px solid #fff;flex-shrink:0;}
+.detail-name{font-size:20px;font-weight:700;color:var(--tx);}
+.detail-xp{display:flex;align-items:center;gap:5px;margin-top:3px;}
+.st-body{padding:12px 14px;}
+.st-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.st-label{font-size:13px;font-weight:700;color:var(--tx);}
+.st-pct{font-size:12px;color:var(--txs);}
+.st-track{height:9px;background:rgba(180,160,220,0.18);border-radius:9px;overflow:hidden;margin-bottom:8px;}
+.st-fill{height:100%;border-radius:9px;transition:width 0.4s;}
+.st-banner{border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700;}
+.st-hint{font-size:12px;color:var(--txs);}
+.habit-row{display:flex;align-items:center;gap:10px;padding:10px 14px;transition:opacity 0.2s;}
+.habit-check{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.18s;}
+.habit-title{font-size:14px;}
+.habit-xp{margin-left:auto;font-size:11px;}
+
+/* settings panel */
+.settings-panel{position:absolute;top:44px;right:10px;background:#fff;border-radius:14px;border:0.5px solid var(--gb);padding:16px;z-index:100;box-shadow:0 8px 24px rgba(60,48,100,0.15);min-width:240px;}
+.sp-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:12px;}
+.sp-label{font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px;}
+.sp-input{width:100%;border:0.5px solid rgba(180,160,220,0.3);border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);background:rgba(255,255,255,0.9);box-sizing:border-box;margin-bottom:5px;}
+.sp-hint{font-size:11px;color:var(--txh);margin-bottom:10px;}
+
+/* add member form */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+.field input{width:100%;border:0.5px solid rgba(180,160,220,0.3);border-radius:10px;padding:9px 12px;font-size:14px;background:rgba(255,255,255,0.85);color:var(--tx);font-family:inherit;outline:none;}
+.field input:focus{border-color:var(--acc);}
+.colour-swatches{display:flex;gap:8px;flex-wrap:wrap;}
+.swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border 0.15s;}
+.swatch.sel{border-color:#3a3060;}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:4px;}
+.tog-label{font-size:13px;color:var(--tx);}
+.tog{width:34px;height:20px;background:rgba(180,160,220,0.22);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.tog.on{background:var(--acc);}
+.tok{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.2s;pointer-events:none;}
+.tog.on .tok{transform:translateX(14px);}
+.btn-row{display:flex;gap:8px;}
+.btn{flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.12s;}
+.btn:active{opacity:0.8;}
+.btn-p{background:var(--acc);color:#fff;}
+.btn-s{background:rgba(240,238,248,0.9);color:var(--txs);border:0.5px solid var(--gb);}
+.info-card{border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.6;}
+
+/* toast */
+.toast{position:fixed;top:calc(var(--safe-top)+60px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--acc);color:#fff;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar" style="position:relative">
+    <div style="font-size:12px;color:var(--txs)">●●●</div>
+    <div class="top-bar-title">Tido — Family Dashboard</div>
+    <button class="settings-btn" onclick="toggleSettings()" aria-label="Settings">⚙️</button>
+    <div class="settings-panel" id="settings-panel" style="display:none">
+      <div class="sp-title">⚙️ Settings</div>
+      <label class="sp-label">Your location (for weather)</label>
+      <input class="sp-input" id="loc-input" placeholder="e.g. Manchester, Leeds…"/>
+      <div class="sp-hint">Type your town or postcode — saved to this device</div>
+      <div class="btn-row">
+        <button class="btn btn-s" onclick="toggleSettings()">Cancel</button>
+        <button class="btn btn-p" onclick="saveLocation()">Save</button>
+      </div>
+    </div>
+  </div>
+  <div class="scroll" id="main"></div>
+  <div class="bot-bar" id="nav"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Config ── */
+const TYPE_ICON={family:'👨‍👩‍👧',school:'🎓',birthday:'🎂',health:'🏥',sport:'⚽',other:'📌'};
+const COLOURS=['#7F77DD','#1D9E75','#D05A8A','#9B6FD4','#E07B3A','#3B82F6','#EF4444','#F59E0B'];
+const HOURLY=[{t:'9am',i:'🌤️',c:15},{t:'12pm',i:'⛅',c:19},{t:'3pm',i:'🌦️',c:18},{t:'6pm',i:'🌧️',c:16},{t:'9pm',i:'🌙',c:14}];
+
+const TODAY_EVENTS=[
+  {id:'e1',title:'School run',        time:'08:15',period:'morning',  type:'school', people:['mum','sophie','olivia']},
+  {id:'e2',title:'Sophie — swimming', time:'16:00',period:'afternoon',type:'sport',  people:['sophie']},
+  {id:'e3',title:'Family dinner',     time:'18:30',period:'evening',  type:'family', people:['mum','dad','sophie','olivia']},
+  {id:'e4',title:'Dad — late meeting',time:'17:30',period:'afternoon',type:'other',  people:['dad']},
+];
+const TOMORROW=[
+  {title:'Dentist — Olivia',time:'10:00',type:'health'},
+  {title:'Dad — work trip', time:'All day',type:'other'},
+];
+const TONIGHT='Beef Tacos 🌮';
+
+const SEED_FAMILY={
+  mum:   {name:'Mum',   color:'#7F77DD',soft:'#EEEDFE',dark:'#3C3489',xp:1265,habits:4,habitsDone:3,isKid:false},
+  dad:   {name:'Dad',   color:'#1D9E75',soft:'#E1F5EE',dark:'#085041',xp:1005,habits:3,habitsDone:3,isKid:false},
+  sophie:{name:'Sophie',color:'#D05A8A',soft:'#FBEAF0',dark:'#72243E',xp:645, habits:5,habitsDone:4,isKid:true,screenTarget:50,screenToday:42,screenMins:45,emoji:'🐱'},
+  olivia:{name:'Olivia',color:'#9B6FD4',soft:'#F0EBFB',dark:'#5B3A8A',xp:425, habits:4,habitsDone:2,isKid:true,screenTarget:40,screenToday:28,screenMins:30,emoji:'🌸'},
+};
+
+/* ── State ── */
+let view='dashboard', focusMember=null, showSettings=false;
+let location_='Your Town';
+let family=JSON.parse(JSON.stringify(SEED_FAMILY));
+let gradAngle=160, gradDir=1;
+let newName='',newColour='#E07B3A',newIsKid=false,newEmoji='';
+
+/* ── Storage ── */
+function save(){
+  try{
+    localStorage.setItem('tido_dash_family',JSON.stringify(family));
+    localStorage.setItem('tido_dash_location',location_);
+  }catch(e){}
+}
+function load(){
+  try{
+    const f=localStorage.getItem('tido_dash_family');
+    const l=localStorage.getItem('tido_dash_location');
+    if(f) family=JSON.parse(f);
+    if(l){location_=l;document.getElementById('loc-input').placeholder=l;}
+  }catch(e){}
+}
+
+/* ── Animated gradient ── */
+function animateGrad(){
+  gradAngle+=gradDir*0.25;
+  if(gradAngle>=200)gradDir=-1;
+  if(gradAngle<=120)gradDir=1;
+  document.documentElement.style.setProperty('--bg-grad',`linear-gradient(${gradAngle}deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%)`);
+  requestAnimationFrame(animateGrad);
+}
+animateGrad();
+
+/* ── Live clock (analog SVG) ── */
+let clockInterval;
+function startClock(){
+  clockInterval=setInterval(()=>{
+    const el=document.getElementById('clock-svg');
+    if(el) updateClockHands(el);
+    const dl=document.getElementById('clock-date');
+    if(dl) dl.textContent=fmtDate(new Date());
+  },1000);
+}
+function updateClockHands(svg){
+  const now=new Date();
+  const s=now.getSeconds(), m=now.getMinutes()+s/60, h=(now.getHours()%12)+m/60;
+  const size=160,cx=size/2,cy=size/2;
+  function handPos(val,max,len){
+    const a=(val/max*360-90)*Math.PI/180;
+    return {x2:cx+Math.cos(a)*len, y2:cy+Math.sin(a)*len};
+  }
+  const hh=handPos(h,12,size*0.27), mh=handPos(m,60,size*0.35), sh=handPos(s,60,size*0.37);
+  const hEl=svg.querySelector('.hand-h'), mEl=svg.querySelector('.hand-m'), sEl=svg.querySelector('.hand-s');
+  if(hEl){hEl.setAttribute('x2',hh.x2);hEl.setAttribute('y2',hh.y2);}
+  if(mEl){mEl.setAttribute('x2',mh.x2);mEl.setAttribute('y2',mh.y2);}
+  if(sEl){sEl.setAttribute('x2',sh.x2);sEl.setAttribute('y2',sh.y2);}
+}
+function clockSvg(size=160){
+  const cx=size/2,cy=size/2,acc=getComputedStyle(document.documentElement).getPropertyValue('--acc')||'#7F77DD';
+  const now=new Date();
+  const s=now.getSeconds(),m=now.getMinutes()+s/60,h=(now.getHours()%12)+m/60;
+  function hand(val,max,len,w,col,cls){
+    const a=(val/max*360-90)*Math.PI/180;
+    return`<line class="${cls}" x1="${cx}" y1="${cy}" x2="${cx+Math.cos(a)*len}" y2="${cy+Math.sin(a)*len}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+  }
+  const ticks=Array.from({length:12},(_,i)=>{
+    const a=(i/12)*Math.PI*2-Math.PI/2,r1=cx-6,r2=cx-14;
+    return`<line x1="${cx+Math.cos(a)*r1}" y1="${cy+Math.sin(a)*r1}" x2="${cx+Math.cos(a)*r2}" y2="${cy+Math.sin(a)*r2}" stroke="rgba(180,160,220,0.5)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;
+  }).join('');
+  const nums=[12,3,6,9].map((n,i)=>{
+    const a=(i/4)*Math.PI*2-Math.PI/2,r=cx-26;
+    return`<text x="${cx+Math.cos(a)*r}" y="${cy+Math.sin(a)*r}" text-anchor="middle" dominant-baseline="central" font-size="${size*0.1}" font-weight="700" fill="rgba(58,48,96,0.7)" font-family="-apple-system,sans-serif">${n}</text>`;
+  }).join('');
+  return`<svg id="clock-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${cx}" cy="${cy}" r="${cx-2}" fill="rgba(255,255,255,0.85)" stroke="rgba(180,160,220,0.3)" stroke-width="1.5"/>
+    ${ticks}${nums}
+    ${hand(h,12,size*0.27,size*0.035,'#3a3060','hand-h')}
+    ${hand(m,60,size*0.35,size*0.025,'#3a3060','hand-m')}
+    ${hand(s,60,size*0.37,size*0.012,'#7F77DD','hand-s')}
+    <circle cx="${cx}" cy="${cy}" r="${size*0.035}" fill="#7F77DD"/>
+    <circle cx="${cx}" cy="${cy}" r="${size*0.015}" fill="#fff"/>
+  </svg>`;
+}
+
+/* ── Helpers ── */
+function fmtDate(d){return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function isLandscape(){return window.innerWidth>window.innerHeight+50;}
+
+/* ── Settings ── */
+function toggleSettings(){
+  showSettings=!showSettings;
+  document.getElementById('settings-panel').style.display=showSettings?'block':'none';
+}
+function saveLocation(){
+  const v=document.getElementById('loc-input').value.trim();
+  if(v){location_=v;save();showToast('Location saved: '+v);}
+  showSettings=false;
+  document.getElementById('settings-panel').style.display='none';
+  render();
+}
+
+/* ── Toast ── */
+let toastT;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ── Nav ── */
+function renderNav(){
+  document.getElementById('nav').innerHTML=[['🏠','Home','dashboard'],['📅','Calendar','calendar'],['🍽️','Meals','meals'],['✅','Tasks','tasks'],['🎁','Rewards','rewards']].map(([icon,label,v])=>
+    `<button class="nb ${view===v?'on':''}" onclick="setView('${v}')"><span class="ni">${icon}</span><span class="nl">${label}</span></button>`
+  ).join('');
+}
+
+/* ── Member row HTML ── */
+function memberRowHtml(uid,landscape=false){
+  const u=family[uid];if(!u)return'';
+  const sz=landscape?28:36,fs=landscape?11:13;
+  const habitPct=Math.round(u.habitsDone/u.habits*100);
+  const screenPct=u.isKid?Math.min(100,Math.round(u.screenToday/u.screenTarget*100)):0;
+  const screenOk=u.isKid&&u.screenToday>=u.screenTarget;
+  return`<div class="member-row rsep" onclick="openMember('${uid}')">
+    <div class="member-av-wrap">
+      <div class="member-av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*0.38)}px;background:${u.color}">${u.name[0]}</div>
+      ${u.emoji?`<span class="member-bicon">${u.emoji}</span>`:''}
+    </div>
+    <div class="member-info">
+      <div class="member-name-row">
+        <span class="member-name" style="font-size:${fs}px">${u.name}</span>
+        <span class="member-xp"><span style="color:${u.color}">⭐</span>${u.xp.toLocaleString()}</span>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${habitPct}%;background:${u.color}"></div></div>
+        <span class="mini-bar-label">${u.habitsDone}/${u.habits} habits</span>
+      </div>
+      ${u.isKid?`<div class="mini-bar-wrap">
+        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${screenPct}%;background:${screenOk?'#1D9E75':u.color}"></div></div>
+        <span class="mini-bar-label" style="color:${screenOk?'#1D9E75':'var(--txs)';font-weight:${screenOk?700:400}}">${screenOk?`✓ ${u.screenMins}m`:`${u.screenToday}/${u.screenTarget} XP`}</span>
+      </div>`:''}
+    </div>
+    <span class="member-chevron">›</span>
+  </div>`;
+}
+
+/* ── Calendar period HTML ── */
+function periodHtml(label,bg,tc,evs){
+  const rows=evs.length?evs.map(e=>{
+    const avs=e.people.slice(0,3).map(uid=>{
+      const u=family[uid];if(!u)return'';
+      return`<div class="event-av" style="width:16px;height:16px;font-size:7px;background:${u.color}">${u.name[0]}</div>`;
+    }).join('');
+    return`<div class="event-row rsep">
+      <span class="event-type-icon">${TYPE_ICON[e.type]||'📌'}</span>
+      <div class="event-info"><div class="event-title">${e.title}</div><div class="event-time">${e.time}</div></div>
+      <div class="event-avs">${avs}</div>
+    </div>`;
+  }).join(''):`<div class="empty-period">Nothing planned</div>`;
+  return`<div class="period-hdr" style="background:${bg};color:${tc}">${label}</div>${rows}`;
+}
+
+/* ── Main dashboard views ── */
+function renderPortrait(){
+  const morning=TODAY_EVENTS.filter(e=>e.period==='morning');
+  const afternoon=TODAY_EVENTS.filter(e=>e.period==='afternoon');
+  const evening=TODAY_EVENTS.filter(e=>e.period==='evening');
+  const memberRows=Object.keys(family).map(uid=>memberRowHtml(uid)).join('');
+  return`
+    <div class="clock-wrap">
+      ${clockSvg(150)}
+      <div class="clock-date" id="clock-date">${fmtDate(new Date())}</div>
+    </div>
+
+    <div class="card">
+      <div class="weather-card" onclick="setView('weather')">
+        <div class="weather-icon">⛅</div>
+        <div class="weather-main">
+          <div><span class="weather-temp">18°C</span> <span class="weather-cond">Partly cloudy</span></div>
+          <div class="weather-loc">${location_} · H:21° L:13°</div>
+        </div>
+        <div class="weather-hourly">
+          ${HOURLY.slice(1,4).map(h=>`<div class="weather-hour"><span class="wh-t">${h.t}</span><span class="wh-i">${h.i}</span><span class="wh-c">${h.c}°</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="setView('meals')" style="cursor:pointer">
+      <div class="chdr">🍽️ Tonight's dinner</div>
+      <div class="dinner-body">
+        <div class="dinner-icon">🍽️</div>
+        <div><div class="dinner-name">${TONIGHT}</div><div class="dinner-sub">Tap to see the full week</div></div>
+      </div>
+    </div>
+
+    <div class="card" onclick="setView('calendar')" style="cursor:pointer">
+      <div class="chdr">📅 Today's plan</div>
+      ${periodHtml('🌅 Morning','#FFF7ED','#854F0B',morning)}
+      ${periodHtml('☀️ Afternoon','#E1F5EE','#085041',afternoon)}
+      ${periodHtml('🌙 Evening','#EEEDFE','#3C3489',evening)}
+    </div>
+
+    <div class="card">
+      <div class="chdr">👨‍👩‍👧 Family today</div>
+      ${memberRows}
+      <button class="add-member-btn" onclick="setView('addmember')">＋ Add family member</button>
+    </div>
+
+    <div class="card">
+      <div class="chdr">📋 Tomorrow</div>
+      ${TOMORROW.map(e=>`<div class="event-row rsep"><span class="event-type-icon">${TYPE_ICON[e.type]||'📌'}</span><div class="event-info"><div class="event-title">${e.title}</div><div class="event-time">${e.time}</div></div></div>`).join('')}
+    </div>`;
+}
+
+function renderLandscape(){
+  const morning=TODAY_EVENTS.filter(e=>e.period==='morning');
+  const afternoon=TODAY_EVENTS.filter(e=>e.period==='afternoon');
+  const evening=TODAY_EVENTS.filter(e=>e.period==='evening');
+  const memberRows=Object.keys(family).map(uid=>memberRowHtml(uid,true)).join('');
+  return`<div class="grid-2">
+    <div>
+      <div class="card">
+        <div style="padding:12px 14px;display:flex;align-items:center;gap:12px">
+          ${clockSvg(100)}
+          <div style="flex:1">
+            <div class="clock-date" id="clock-date" style="font-size:11px;margin-bottom:4px">${fmtDate(new Date())}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+              <span style="font-size:20px">⛅</span>
+              <span style="font-size:20px;font-weight:700;color:var(--tx)">18°C</span>
+              <span style="font-size:11px;color:var(--txs)">Partly cloudy</span>
+            </div>
+            <div style="font-size:11px;color:var(--txh)">${location_} · H:21° L:13°</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" onclick="setView('meals')" style="cursor:pointer">
+        <div class="chdr">🍽️ Tonight's dinner</div>
+        <div style="padding:10px 14px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🍽️</span>
+          <div><div style="font-size:14px;font-weight:700;color:var(--tx)">${TONIGHT}</div><div style="font-size:11px;color:var(--txs)">Tap for full week</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chdr">👨‍👩‍👧 Family today</div>
+        ${memberRows}
+        <button class="add-member-btn" onclick="setView('addmember')" style="font-size:12px">＋ Add family member</button>
+      </div>
+    </div>
+    <div>
+      <div class="card" onclick="setView('calendar')" style="cursor:pointer">
+        <div class="chdr">📅 Today's plan</div>
+        ${periodHtml('🌅 Morning','#FFF7ED','#854F0B',morning)}
+        ${periodHtml('☀️ Afternoon','#E1F5EE','#085041',afternoon)}
+        ${periodHtml('🌙 Evening','#EEEDFE','#3C3489',evening)}
+      </div>
+      <div class="card">
+        <div class="chdr">📋 Tomorrow</div>
+        ${TOMORROW.map(e=>`<div class="event-row rsep"><span class="event-type-icon">${TYPE_ICON[e.type]||'📌'}</span><div class="event-info"><div class="event-title" style="font-size:12px">${e.title}</div><div class="event-time">${e.time}</div></div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── Detail views ── */
+function renderMember(){
+  const u=family[focusMember];if(!u)return'';
+  const habits=[
+    {title:'Brush teeth (morning)',done:true},
+    {title:'Brush teeth (evening)',done:false},
+    {title:'Read for 15 mins',done:true},
+    {title:'Pack school bag',done:focusMember==='sophie'},
+    {title:'Tidy toys before bed',done:false},
+  ].slice(0,u.habits);
+  const myEvents=TODAY_EVENTS.filter(e=>e.people.includes(focusMember));
+  return`
+    <button class="back-btn" onclick="setView('dashboard')">← Dashboard</button>
+    <div class="card" style="background:linear-gradient(135deg,${u.soft},rgba(255,255,255,0.9))">
+      <div class="detail-hero">
+        <div style="position:relative">
+          <div class="detail-av" style="width:54px;height:54px;font-size:22px;background:${u.color}">${u.name[0]}</div>
+          ${u.emoji?`<span style="position:absolute;bottom:-2px;right:-4px;font-size:15px">${u.emoji}</span>`:''}
+        </div>
+        <div>
+          <div class="detail-name">${u.name}</div>
+          <div class="detail-xp"><span style="color:${u.color}">⭐</span><span style="font-size:15px;font-weight:700;color:${u.dark}">${u.xp.toLocaleString()} XP</span></div>
+        </div>
+      </div>
+    </div>
+    ${u.isKid?`<div class="card">
+      <div class="chdr">📺 Screen time today</div>
+      <div class="st-body">
+        <div class="st-row"><span class="st-label">${u.screenToday} / ${u.screenTarget} XP earned</span><span class="st-pct">${Math.min(100,Math.round(u.screenToday/u.screenTarget*100))}%</span></div>
+        <div class="st-track"><div class="st-fill" style="width:${Math.min(100,Math.round(u.screenToday/u.screenTarget*100))}%;background:${u.screenToday>=u.screenTarget?'#1D9E75':u.color}"></div></div>
+        ${u.screenToday>=u.screenTarget
+          ?`<div class="st-banner" style="background:#E1F5EE;color:#085041">🎉 ${u.screenMins} mins screen time unlocked today!</div>`
+          :`<div class="st-hint">Earn ${u.screenTarget-u.screenToday} more XP to unlock ${u.screenMins} mins</div>`}
+      </div>
+    </div>`:''}
+    <div class="card">
+      <div class="chdr">✅ Today's habits — ${u.habitsDone}/${u.habits} done</div>
+      ${habits.map(h=>`<div class="habit-row rsep" style="opacity:${h.done?0.55:1}">
+        <div class="habit-check" style="background:${h.done?u.color:'transparent'};border:1.5px solid ${h.done?u.color:'rgba(160,140,210,0.3)'}">
+          ${h.done?`<span style="color:#fff;font-size:12px">✓</span>`:''}
+        </div>
+        <span class="habit-title" style="color:${h.done?'var(--txh)':'var(--tx)'};text-decoration:${h.done?'line-through':'none'}">${h.title}</span>
+        <span class="habit-xp" style="color:${u.dark}">⭐ 10</span>
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="chdr">📅 ${u.name}'s events today</div>
+      ${myEvents.length===0
+        ?`<div style="padding:14px;font-size:13px;color:var(--txh);text-align:center">No events today</div>`
+        :myEvents.map(e=>`<div class="event-row rsep"><span class="event-type-icon">${TYPE_ICON[e.type]||'📌'}</span><div class="event-info"><div class="event-title">${e.title}</div><div class="event-time">${e.time}</div></div></div>`).join('')
+      }
+    </div>`;
+}
+
+function renderAddMember(){
+  const swatches=COLOURS.map(c=>`<div class="swatch ${newColour===c?'sel':''}" style="background:${c}" onclick="newColour='${c}';renderAddMember_Update()"></div>`).join('');
+  return`
+    <button class="back-btn" onclick="setView('dashboard')">← Dashboard</button>
+    <div class="card">
+      <div class="chdr">👤 Add family member</div>
+      <div style="padding:14px">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="nm-input" value="${newName}" oninput="newName=this.value" placeholder="e.g. Grandma, Jake…"/>
+        </div>
+        <div class="field">
+          <label>Colour</label>
+          <div class="colour-swatches" id="swatches">${swatches}</div>
+        </div>
+        <div class="field">
+          <label>Emoji icon (optional)</label>
+          <input type="text" id="em-input" value="${newEmoji}" oninput="newEmoji=this.value" placeholder="e.g. 🐶 🦊 🌟" style="font-size:20px"/>
+        </div>
+        <div class="tog-row">
+          <span class="tog-label">This is a child (enables screen time + badges)</span>
+          <div class="tog ${newIsKid?'on':''}" onclick="newIsKid=!newIsKid;renderAddMember_Update()"><div class="tok"></div></div>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-s" onclick="setView('dashboard')">Cancel</button>
+          <button class="btn btn-p" onclick="submitNewMember()">Add member</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderAddMember_Update(){
+  document.getElementById('main').innerHTML=renderAddMember();
+}
+
+function submitNewMember(){
+  const nm=(document.getElementById('nm-input')?.value||newName).trim();
+  if(!nm){showToast('Please enter a name');return;}
+  const uid=nm.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+  family[uid]={
+    name:nm,color:newColour,soft:newColour+'22',dark:newColour,
+    xp:0,habits:3,habitsDone:0,isKid:newIsKid,
+    ...(newEmoji&&{emoji:newEmoji}),
+    ...(newIsKid&&{screenTarget:50,screenToday:0,screenMins:45}),
+  };
+  newName='';newEmoji='';newIsKid=false;newColour='#E07B3A';
+  save();showToast(nm+' added to the family!');
+  setView('dashboard');
+}
+
+function renderWeather(){
+  return`<button class="back-btn" onclick="setView('dashboard')">← Dashboard</button>
+    <div class="card" style="background:linear-gradient(135deg,#e8edfb,rgba(255,255,255,0.9))">
+      <div style="padding:20px 16px;text-align:center">
+        <div style="font-size:52px;margin-bottom:6px">⛅</div>
+        <div style="font-size:42px;font-weight:700;color:var(--tx);margin-bottom:4px">18°C</div>
+        <div style="font-size:16px;color:var(--txs);margin-bottom:2px">Partly cloudy</div>
+        <div style="font-size:13px;color:var(--txh)">${location_} · H:21° L:13°</div>
+      </div>
+      <div style="display:flex;justify-content:space-around;padding:14px;border-top:0.5px solid rgba(180,160,220,0.12)">
+        ${HOURLY.map(h=>`<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <span style="font-size:11px;color:var(--txh)">${h.t}</span>
+          <span style="font-size:22px">${h.i}</span>
+          <span style="font-size:14px;font-weight:700;color:var(--tx)">${h.c}°</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="info-card" style="background:#EEEDFE;border:0.5px solid rgba(127,119,221,0.2);color:#3C3489">
+      💡 Live weather for <strong>${location_}</strong> connects automatically once deployed. Tap ⚙️ to update your location.
+    </div>`;
+}
+
+function renderCalendar(){
+  const morning=TODAY_EVENTS.filter(e=>e.period==='morning');
+  const afternoon=TODAY_EVENTS.filter(e=>e.period==='afternoon');
+  const evening=TODAY_EVENTS.filter(e=>e.period==='evening');
+  return`<button class="back-btn" onclick="setView('dashboard')">← Dashboard</button>
+    <div class="card">
+      <div class="chdr">📅 Today's events</div>
+      ${periodHtml('🌅 Morning','#FFF7ED','#854F0B',morning)}
+      ${periodHtml('☀️ Afternoon','#E1F5EE','#085041',afternoon)}
+      ${periodHtml('🌙 Evening','#EEEDFE','#3C3489',evening)}
+    </div>
+    <div class="card">
+      <div class="chdr">📋 Tomorrow</div>
+      ${TOMORROW.map(e=>`<div class="event-row rsep"><span class="event-type-icon">${TYPE_ICON[e.type]||'📌'}</span><div class="event-info"><div class="event-title">${e.title}</div><div class="event-time">${e.time}</div></div></div>`).join('')}
+    </div>`;
+}
+
+function renderMeals(){
+  const week=[{d:'Mon',m:'Chicken Stir Fry'},{d:'Tue',m:'Salmon with Veg'},{d:'Wed',m:TONIGHT},{d:'Thu',m:'—'},{d:'Fri',m:'Fish and Chips'},{d:'Sat',m:'Homemade Pizza'},{d:'Sun',m:'Roast Chicken'}];
+  return`<button class="back-btn" onclick="setView('dashboard')">← Dashboard</button>
+    <div class="card" style="background:linear-gradient(135deg,#FAEEDA,rgba(255,255,255,0.9))">
+      <div style="padding:16px;text-align:center">
+        <div style="font-size:36px;margin-bottom:4px">🍽️</div>
+        <div style="font-size:18px;font-weight:700;color:var(--tx)">${TONIGHT}</div>
+        <div style="font-size:12px;color:var(--txs);margin-top:2px">Tonight's dinner</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chdr">🗓️ This week</div>
+      ${week.map(({d,m})=>`<div class="event-row rsep">
+        <span style="font-size:11px;font-weight:700;color:var(--txs);width:28px">${d}</span>
+        <span style="font-size:13px;color:${m==='—'?'var(--txh)':'var(--tx)'};font-style:${m==='—'?'italic':'normal'};flex:1">${m}</span>
+        ${d==='Wed'?`<span style="font-size:10px;background:#EEEDFE;color:#3C3489;border-radius:6px;padding:1px 6px;font-weight:700">Tonight</span>`:''}
+      </div>`).join('')}
+    </div>`;
+}
+
+/* ── Set view ── */
+function setView(v){
+  view=v;
+  if(v==='dashboard'){focusMember=null;}
+  renderNav();
+  renderMain();
+}
+
+function openMember(uid){
+  focusMember=uid;
+  view='member';
+  renderNav();
+  renderMain();
+}
+
+function renderMain(){
+  clearInterval(clockInterval);
+  const m=document.getElementById('main');
+  if(view==='dashboard')    m.innerHTML=isLandscape()?renderLandscape():renderPortrait();
+  else if(view==='member')  m.innerHTML=renderMember();
+  else if(view==='addmember')m.innerHTML=renderAddMember();
+  else if(view==='weather') m.innerHTML=renderWeather();
+  else if(view==='calendar')m.innerHTML=renderCalendar();
+  else if(view==='meals')   m.innerHTML=renderMeals();
+  else if(view==='tasks')   m.innerHTML=`<button class="back-btn" onclick="setView('dashboard')">← Dashboard</button><div class="info-card" style="background:var(--acc-s);color:var(--acc-d)">✅ Tasks module — <a href="index.html" style="color:var(--acc-d);font-weight:700">open Tido Tasks</a> to see today's habits and to-dos.</div>`;
+  else if(view==='rewards') m.innerHTML=`<button class="back-btn" onclick="setView('dashboard')">← Dashboard</button><div class="info-card" style="background:var(--acc-s);color:var(--acc-d)">🎁 Rewards module — <a href="rewards.html" style="color:var(--acc-d);font-weight:700">open Tido Rewards</a> to see XP and goals.</div>`;
+  if(view==='dashboard') startClock();
+}
+
+/* ── Orientation change ── */
+window.addEventListener('resize',()=>{
+  if(view==='dashboard') renderMain();
+});
+
+/* ── Service worker ── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+
+/* ── Boot ── */
+load();
+renderNav();
+renderMain();
+</script>
+</body>
+</html>
