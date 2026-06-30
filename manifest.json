@@ -1,7 +1,7 @@
 {
-  "name": "Tido — Family Tasks",
+  "name": "Tido — Family App",
   "short_name": "Tido",
-  "description": "Your family's shared to-do and habit tracker",
+  "description": "Your family's shared tasks, calendar, meals and rewards",
   "start_url": "/index.html",
   "display": "standalone",
   "orientation": "portrait",

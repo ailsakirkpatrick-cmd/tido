@@ -9,689 +9,1392 @@
 <meta name="theme-color" content="#7F77DD"/>
 <title>Tido</title>
 <link rel="manifest" href="manifest.json"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --mum:#7F77DD;--mum-soft:#EEEDFE;--mum-dark:#3C3489;
-  --dad:#1D9E75;--dad-soft:#E1F5EE;--dad-dark:#085041;
-  --sophie:#D05A8A;--sophie-soft:#FBEAF0;--sophie-dark:#72243E;
-  --olivia:#9B6FD4;--olivia-soft:#F0EBFB;--olivia-dark:#5B3A8A;
-  --accent:#7F77DD;--accent-soft:#EEEDFE;--accent-dark:#3C3489;
-  --bg-grad:linear-gradient(160deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%);
-  --glass:rgba(255,255,255,0.68);
-  --glass-border:rgba(180,160,220,0.2);
-  --text-primary:#3a3060;
-  --text-secondary:#9088b0;
-  --text-hint:#b8b0d0;
+  --acc:#7F77DD;--acc-s:#EEEDFE;--acc-d:#3C3489;
+  --glass:rgba(255,255,255,0.72);--gb:rgba(180,160,220,0.2);
+  --tx:#3a3060;--txs:#9088b0;--txh:#c0b8d8;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bottom:env(safe-area-inset-bottom,0px);
 }
-html,body{height:100%;overflow:hidden;background:var(--bg-grad);}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;color:var(--text-primary);display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;}
-body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);z-index:-1;}
-
-/* ── Layout shells ── */
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--tx);max-width:480px;margin:0 auto;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:var(--bg);}
 #app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
-.top-bar{background:var(--glass);border-bottom:0.5px solid var(--glass-border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 16px 14px;flex-shrink:0;}
-.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 0;}
-.scroll-area::-webkit-scrollbar{display:none;}
-.bottom-bar{background:var(--glass);border-top:0.5px solid var(--glass-border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
 
-/* ── User switcher ── */
-.user-switcher{display:flex;gap:6px;margin-bottom:14px;}
-.user-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;padding:5px 4px;border-radius:14px;transition:background 0.15s;}
-.user-btn:hover,.user-btn:focus-visible{background:rgba(255,255,255,0.5);outline:none;}
-.user-btn.active{background:rgba(255,255,255,0.78);}
-.av-wrap{position:relative;width:42px;height:42px;}
-.avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;border:2.5px solid rgba(255,255,255,0.5);transition:transform 0.18s,border-color 0.18s;}
-.user-btn.active .avatar{transform:scale(1.09);border-color:#fff;}
-.badge-icon{position:absolute;bottom:-1px;right:-4px;font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.15));}
-.uname{font-size:11px;color:var(--text-secondary);font-weight:400;transition:color 0.15s;}
-.user-btn.active .uname{color:var(--accent);font-weight:500;}
+/* ── top bar ── */
+.top-bar{background:var(--glass);border-bottom:0.5px solid var(--gb);backdrop-filter:blur(12px);padding:10px 14px 12px;flex-shrink:0;}
+.status{background:rgba(255,255,255,0.55);padding:8px 18px;display:flex;justify-content:space-between;margin:-10px -14px 10px;}
+.status span{font-size:12px;font-weight:500;color:var(--txs);}
+.user-row{display:flex;gap:5px;margin-bottom:12px;}
+.ubtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;padding:5px 3px;border-radius:12px;cursor:pointer;font-family:inherit;transition:background .15s;}
+.ubtn.on{background:rgba(255,255,255,0.88);}
+.avw{position:relative;width:38px;height:38px;}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.4);transition:transform .15s;}
+.ubtn.on .av{transform:scale(1.08);border-color:#fff;}
+.bicon{position:absolute;bottom:-2px;right:-4px;font-size:12px;}
+.uname{font-size:10px;color:var(--txs);}
+.ubtn.on .uname{color:var(--acc);font-weight:700;}
+.grt{display:flex;align-items:center;justify-content:space-between;}
+.gname{font-size:18px;font-weight:700;color:var(--tx);}
+.xp-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.8);border:.5px solid var(--gb);border-radius:20px;padding:5px 11px;cursor:pointer;}
+.xp-chip i{font-size:13px;color:var(--acc);}
+.xp-chip span{font-size:12px;font-weight:700;color:var(--acc-d);}
+/* dashboard has no user switcher */
+.dash-hdr{display:flex;justify-content:space-between;align-items:center;padding:2px 0 0;}
+.dash-title{font-size:18px;font-weight:700;color:var(--tx);}
+.settings-btn{border:none;background:none;cursor:pointer;font-size:18px;color:var(--txs);padding:2px;}
 
-/* ── Greeting ── */
-.greeting{display:flex;align-items:center;justify-content:space-between;}
-.g-left .g-date{font-size:11px;color:var(--text-hint);margin-bottom:2px;}
-.g-left .g-name{font-size:21px;font-weight:600;color:var(--text-primary);letter-spacing:-0.3px;}
-.xp-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.75);border:0.5px solid var(--glass-border);border-radius:20px;padding:6px 12px;cursor:pointer;transition:background 0.15s;}
-.xp-chip:hover{background:#fff;}
-.xp-chip i{font-size:14px;color:var(--accent);}
-.xp-chip span{font-size:13px;font-weight:600;color:var(--accent-dark);}
+/* ── scroll area ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 0;}
+.scroll::-webkit-scrollbar{display:none;}
 
-/* ── Section labels ── */
-.section-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
-.section-count{font-size:11px;background:rgba(255,255,255,0.75);color:var(--accent-dark);border-radius:10px;padding:2px 9px;font-weight:600;border:0.5px solid var(--glass-border);}
+/* ── nav ── */
+.bot-bar{background:var(--glass);border-top:.5px solid var(--gb);backdrop-filter:blur(12px);display:flex;padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;padding:4px;font-family:inherit;}
+.nb .ni{font-size:20px;color:var(--txh);}
+.nb .nl{font-size:10px;color:var(--txh);}
+.nb.on .ni,.nb.on .nl{color:var(--acc);}
+.nb-wrap{position:relative;}
+.notif-dot{position:absolute;top:0;right:2px;width:7px;height:7px;border-radius:50%;background:#E24B4A;}
 
-/* ── Task cards ── */
-.card{background:rgba(255,255,255,0.72);border-radius:16px;border:0.5px solid var(--glass-border);overflow:hidden;margin-bottom:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-.task-row{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer;transition:background 0.12s;user-select:none;}
-.task-row:not(:last-child){border-bottom:0.5px solid rgba(180,160,220,0.12);}
-.task-row:hover{background:rgba(255,255,255,0.55);}
-.task-row:active{background:rgba(255,255,255,0.8);}
-.task-row.done-row{opacity:0.48;}
+/* ── cards ── */
+.card{background:var(--glass);border-radius:16px;border:.5px solid var(--gb);overflow:hidden;margin-bottom:10px;backdrop-filter:blur(6px);}
+.chdr{padding:9px 14px;border-bottom:.5px solid rgba(180,160,220,.12);font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:.07em;display:flex;justify-content:space-between;align-items:center;}
+.chdr-count{font-size:11px;background:rgba(255,255,255,.7);color:var(--acc-d);border-radius:10px;padding:1px 8px;font-weight:700;border:.5px solid var(--gb);}
+.rsep{border-bottom:.5px solid rgba(180,160,220,.09);}
 
-/* ── Check circle ── */
-.check{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(160,140,210,0.38);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;background:transparent;}
-.check.done{background:var(--accent);border-color:var(--accent);}
-.check .ti{font-size:13px;color:transparent;transition:color 0.15s;}
-.check.done .ti{color:#fff;}
-
-/* ── Streak pill (left) ── */
-.streak-pill{display:flex;align-items:center;gap:2px;background:rgba(255,247,237,0.9);border-radius:10px;padding:3px 7px;border:0.5px solid rgba(224,140,80,0.18);flex-shrink:0;}
-.streak-pill .ti{font-size:12px;color:#E07B3A;}
-.streak-pill span{font-size:12px;font-weight:600;color:#854F0B;}
+/* ── TASKS ── */
+.task-row{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer;transition:background .1s;}
+.task-row:hover{background:rgba(255,255,255,.5);}
+.task-row.done-row{opacity:.48;}
+.check{width:23px;height:23px;border-radius:50%;border:1.5px solid rgba(160,140,210,.38);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.check.done{background:var(--acc);border-color:var(--acc);}
+.check.done::after{content:'✓';color:#fff;font-size:13px;}
+.streak-pill{display:flex;align-items:center;gap:2px;background:rgba(255,247,237,.9);border-radius:10px;padding:3px 7px;border:.5px solid rgba(224,140,80,.18);flex-shrink:0;}
+.streak-pill span{font-size:11px;font-weight:600;color:#854F0B;}
 .streak-zero{width:34px;flex-shrink:0;}
-
-/* ── Task info ── */
 .task-info{flex:1;min-width:0;}
-.task-title{font-size:15px;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;font-weight:400;}
-.task-title.done{text-decoration:line-through;color:var(--text-hint);}
-.task-sub{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;}
-.shared-tag{font-size:10px;color:var(--text-secondary);background:rgba(255,255,255,0.7);border-radius:6px;padding:1px 6px;border:0.5px solid var(--glass-border);}
-.due-tag{font-size:10px;color:var(--text-secondary);font-weight:500;}
-.due-tag.overdue{color:#C0392B;}
+.task-title{font-size:14px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.task-title.done{text-decoration:line-through;color:var(--txh);}
+.task-sub{display:flex;gap:5px;margin-top:2px;flex-wrap:wrap;}
+.shared-tag{font-size:10px;color:var(--txs);background:rgba(255,255,255,.7);border-radius:6px;padding:1px 5px;border:.5px solid var(--gb);}
+.due-tag{font-size:10px;color:var(--txs);}
+.due-tag.overdue{color:#C0392B;font-weight:600;}
+.xp-pill{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.75);border:.5px solid var(--gb);border-radius:10px;padding:3px 7px;flex-shrink:0;}
+.xp-pill span{font-size:11px;font-weight:700;color:var(--acc-d);}
+.add-btn-row{display:flex;justify-content:flex-end;padding:8px 10px 12px;}
+.fab{width:48px;height:48px;border-radius:50%;background:var(--acc);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(127,119,221,.35);font-size:24px;color:#fff;}
 
-/* ── XP pill (right) ── */
-.xp-pill{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.75);border:0.5px solid var(--glass-border);border-radius:10px;padding:3px 8px;flex-shrink:0;}
-.xp-pill .ti{font-size:11px;color:var(--accent);}
-.xp-pill span{font-size:12px;font-weight:600;color:var(--accent-dark);}
-
-/* ── Kid mode ── */
-.kid-mode .task-title{font-size:17px;}
-.kid-mode .check{width:30px;height:30px;}
-.kid-mode .check .ti{font-size:16px;}
-.kid-mode .streak-pill span{font-size:14px;}
-.kid-mode .xp-pill span{font-size:13px;}
-
-/* ── Empty state ── */
-.empty-state{text-align:center;padding:32px 20px;color:var(--text-hint);font-size:14px;}
-.empty-state i{font-size:36px;display:block;margin-bottom:8px;opacity:0.4;}
-
-/* ── FAB ── */
-.fab-wrap{display:flex;justify-content:flex-end;padding:10px 14px 14px;}
-.fab{width:52px;height:52px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s,opacity 0.15s;box-shadow:0 4px 16px rgba(127,119,221,0.35);}
-.fab:hover{transform:scale(1.07);}
-.fab:active{transform:scale(0.96);}
-.fab .ti{font-size:24px;color:#fff;}
-
-/* ── Bottom nav ── */
-.nav-inner{display:flex;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;padding:4px 0;}
-.nav-btn .ti{font-size:22px;color:var(--text-hint);}
-.nav-btn span{font-size:10px;color:var(--text-hint);}
-.nav-btn.active .ti,.nav-btn.active span{color:var(--accent);}
-
-/* ── Sheet overlay ── */
-.sheet-overlay{position:fixed;inset:0;background:rgba(60,48,100,0.3);z-index:100;display:none;align-items:flex-end;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
-.sheet-overlay.open{display:flex;}
-.sheet{background:rgba(252,250,255,0.97);border-radius:24px 24px 0 0;padding:0 16px calc(16px + var(--safe-bottom));width:100%;max-height:92vh;overflow-y:auto;}
-.sheet-handle{width:36px;height:4px;background:rgba(180,160,220,0.35);border-radius:2px;margin:12px auto 16px;}
-.sheet-title{font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:16px;}
-.field{margin-bottom:14px;}
-.field label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
-.field input[type=text],.field input[type=date],.field select{width:100%;border:0.5px solid rgba(180,160,220,0.35);border-radius:12px;padding:10px 13px;font-size:15px;background:rgba(255,255,255,0.8);color:var(--text-primary);font-family:inherit;outline:none;transition:border-color 0.15s,background 0.15s;-webkit-appearance:none;}
-.field input:focus,.field select:focus{border-color:var(--accent);background:#fff;}
+/* ── ADD TASK SHEET ── */
+.sheet{background:rgba(252,250,255,.97);border-radius:20px;border:.5px solid var(--gb);padding:16px;margin-bottom:10px;}
+.shandle{width:32px;height:3px;background:rgba(180,160,220,.35);border-radius:2px;margin:0 auto 14px;}
+.sheet-title{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:14px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.field input[type=text],.field input[type=date],.field select{width:100%;border:.5px solid rgba(180,160,220,.3);border-radius:10px;padding:9px 12px;font-size:14px;background:rgba(255,255,255,.85);color:var(--tx);font-family:inherit;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--acc);}
 .pill-row{display:flex;gap:6px;flex-wrap:wrap;}
-.pill{padding:6px 13px;border-radius:20px;border:0.5px solid rgba(180,160,220,0.3);font-size:13px;cursor:pointer;background:rgba(255,255,255,0.6);color:var(--text-secondary);transition:all 0.12s;white-space:nowrap;font-family:inherit;}
-.pill:hover{background:rgba(255,255,255,0.9);}
-.pill.on{background:var(--accent-soft);color:var(--accent-dark);border-color:var(--accent);font-weight:500;}
-.assign-row{display:flex;gap:12px;}
-.a-chip{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
-.a-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;border:2.5px solid transparent;opacity:0.35;transition:all 0.15s;}
-.a-chip.on .a-av{opacity:1;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
-.a-name{font-size:10px;color:var(--text-secondary);}
-.xp-row{display:flex;align-items:center;gap:10px;}
-.xp-row input[type=range]{flex:1;accent-color:var(--accent);}
-.xp-val{font-size:15px;font-weight:600;color:var(--accent);min-width:46px;text-align:right;}
-.btn-row{display:flex;gap:8px;margin-top:8px;}
-.btn{flex:1;padding:13px;border-radius:13px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.12s,transform 0.1s;}
-.btn:active{transform:scale(0.98);}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-cancel{background:rgba(240,238,248,0.8);color:var(--text-secondary);}
-.btn:hover{opacity:0.88;}
+.pill{padding:5px 11px;border-radius:20px;border:.5px solid rgba(180,160,220,.3);font-size:12px;cursor:pointer;background:rgba(255,255,255,.6);color:var(--txs);font-family:inherit;}
+.pill.on{background:var(--acc-s);color:var(--acc-d);border-color:var(--acc);font-weight:700;}
+.assign-row{display:flex;gap:10px;}
+.a-chip{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.a-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;border:2.5px solid transparent;opacity:.35;transition:all .15s;}
+.a-chip.on .a-av{opacity:1;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-s);}
+.a-name{font-size:10px;color:var(--txs);}
+.xp-ctrl{display:flex;align-items:center;gap:8px;}
+.xp-ctrl input[type=range]{flex:1;accent-color:var(--acc);}
+.btn-row{display:flex;gap:8px;margin-top:6px;}
+.btn{flex:1;padding:11px;border-radius:11px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .12s;}
+.btn-p{background:var(--acc);color:#fff;}
+.btn-s{background:rgba(240,238,248,.9);color:var(--txs);border:.5px solid var(--gb);}
 
-/* ── XP toast ── */
-.toast{position:fixed;top:calc(var(--safe-top) + 70px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--accent);color:#fff;border-radius:20px;padding:8px 18px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:200;white-space:nowrap;}
+/* ── CALENDAR ── */
+.week-strip{padding:8px 12px 10px;}
+.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.wk-btn{border:none;background:none;cursor:pointer;font-size:20px;color:var(--txs);padding:2px 6px;border-radius:8px;}
+.week-days{display:flex;gap:3px;}
+.day-cell{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 2px;border-radius:10px;border:1.5px solid transparent;transition:all .12s;}
+.day-cell.sel{background:rgba(255,255,255,.9);border-color:var(--acc);}
+.day-cell .dn{font-size:10px;color:var(--txs);}
+.day-cell.sel .dn{color:var(--acc);font-weight:700;}
+.day-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tx);}
+.day-num.today-num{background:var(--acc);color:#fff;font-weight:700;}
+.day-cell.sel .day-num:not(.today-num){color:var(--acc);font-weight:700;}
+.day-dots{display:flex;gap:2px;height:6px;}
+.day-dot{width:5px;height:5px;border-radius:50%;}
+.event-row{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:background .1s;}
+.event-row:hover{background:rgba(255,255,255,.5);}
+.ev-bar{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0;}
+.ev-icon{font-size:18px;flex-shrink:0;}
+.ev-info{flex:1;min-width:0;}
+.ev-title{font-size:14px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ev-meta{font-size:11px;color:var(--txs);}
+.ev-avs{display:flex;gap:2px;flex-shrink:0;}
+.ev-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;}
+.today-btn{border:.5px solid var(--gb);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--acc);background:rgba(255,255,255,.8);cursor:pointer;font-family:inherit;}
+/* remind box */
+.remind-box{border-radius:12px;padding:11px 13px;margin-bottom:12px;}
+.remind-box label{font-size:12px;font-weight:700;display:block;margin-bottom:4px;}
+.remind-box p{font-size:12px;line-height:1.5;margin-bottom:8px;}
+.remind-box .rd{font-size:11px;margin-top:5px;}
+
+/* ── MEAL PLAN ── */
+.day-label{font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.day-label.wknd{color:var(--acc);}
+.meal-type-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:4px;}
+.mt-lbl{font-size:10px;color:var(--txs);width:52px;flex-shrink:0;padding-top:9px;text-transform:capitalize;}
+.meal-filled{background:rgba(255,255,255,.88);border-radius:10px;padding:8px 10px;flex:1;}
+.meal-filled.kc{border:1.5px solid var(--acc);}
+.kc-label{font-size:9px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.meal-name{font-size:13px;font-weight:600;color:var(--tx);}
+.meal-acts{display:flex;align-items:center;gap:3px;margin-top:2px;}
+.vote-btn{border:none;background:none;cursor:pointer;font-size:13px;padding:2px;opacity:.4;}
+.vote-btn.voted{opacity:1;}
+.vc{font-size:10px;color:var(--txs);min-width:10px;}
+.clear-x{border:none;background:none;cursor:pointer;font-size:14px;color:var(--txh);padding:2px;margin-left:auto;}
+.meal-empty{width:100%;padding:8px 10px;border-radius:10px;border:1.5px dashed rgba(180,160,220,.3);background:rgba(255,255,255,.4);color:var(--txs);font-size:12px;cursor:pointer;font-family:inherit;text-align:left;flex:1;}
+.action-row{display:flex;gap:8px;margin-bottom:10px;}
+.add-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.add-tab{flex:1;padding:8px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.6);color:var(--txs);}
+.add-tab.on{background:var(--acc);color:#fff;}
+.recipe-row{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;transition:background .1s;}
+.recipe-row:hover{background:rgba(255,255,255,.5);}
+.sug-card{background:var(--glass);border-radius:12px;border:.5px solid var(--gb);margin-bottom:8px;cursor:pointer;overflow:hidden;}
+.sug-body{display:flex;align-items:center;gap:10px;padding:11px 12px;}
+.sug-icon{width:42px;height:42px;border-radius:10px;background:var(--acc-s);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.sug-info{flex:1;min-width:0;}
+.sug-name{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.sug-reason{font-size:11px;color:var(--txs);margin-bottom:4px;}
+.sug-tag{font-size:10px;background:var(--acc-s);color:var(--acc-d);border-radius:6px;padding:1px 6px;font-weight:700;}
+.loading-dots{display:flex;justify-content:center;gap:6px;margin-top:12px;}
+.ld{width:8px;height:8px;border-radius:50%;background:var(--acc);opacity:.4;animation:pulse 1.2s infinite;}
+.ld:nth-child(2){animation-delay:.2s;}.ld:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:1;transform:scale(1.2);}}
+
+/* ── REWARDS ── */
+.goal-row{display:flex;align-items:center;gap:11px;padding:11px 14px;}
+.goal-icon{width:42px;height:42px;border-radius:12px;background:var(--acc-s);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.goal-info{flex:1;min-width:0;}
+.goal-title-txt{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:4px;}
+.goal-prog{display:flex;align-items:center;gap:6px;}
+.goal-track{flex:1;height:5px;background:rgba(180,160,220,.18);border-radius:5px;overflow:hidden;}
+.goal-fill{height:100%;border-radius:5px;background:var(--acc);}
+.goal-xp-lbl{font-size:11px;color:var(--txs);white-space:nowrap;}
+.claim-btn{border:none;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.claim-btn.ready{background:var(--acc);color:#fff;}
+.claim-btn.saving{background:rgba(180,160,220,.18);color:var(--txs);cursor:default;}
+.pending-tag{font-size:10px;background:#FAEEDA;color:#633806;border-radius:6px;padding:1px 6px;font-weight:700;margin-left:5px;}
+.badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px;}
+.badge-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.badge-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;border:2px solid transparent;}
+.badge-circle.earned{background:var(--acc-s);border-color:var(--acc);}
+.badge-circle.locked{background:rgba(180,160,220,.08);filter:grayscale(1);opacity:.38;}
+.badge-name{font-size:9px;color:var(--txs);text-align:center;line-height:1.3;}
+.badge-circle.earned+.badge-name{color:var(--acc-d);font-weight:700;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:220px;margin:0 auto;}
+.pkey{padding:13px;border-radius:12px;border:.5px solid rgba(180,160,220,.2);background:rgba(255,255,255,.85);font-size:18px;font-weight:600;color:var(--tx);cursor:pointer;font-family:inherit;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:14px 0;}
+.pin-dot{width:13px;height:13px;border-radius:50%;background:rgba(180,160,220,.22);}
+.pin-dot.filled{background:var(--acc);}
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;}
+.adj{width:28px;height:28px;border-radius:8px;border:none;font-size:16px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.adj.p{background:var(--acc-s);color:var(--acc-d);}
+.adj.m{background:#fde8e8;color:#a32d2d;}
+.tog{width:34px;height:20px;background:rgba(180,160,220,.22);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tog.on{background:var(--acc);}
+.tok{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .2s;pointer-events:none;}
+.tog.on .tok{transform:translateX(14px);}
+.celebrate{position:fixed;inset:0;background:rgba(60,48,100,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.celebrate-box{background:#fff;border-radius:24px;padding:28px 22px;text-align:center;max-width:300px;width:100%;}
+.st-track{height:10px;background:rgba(180,160,220,.18);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.st-fill{height:100%;border-radius:10px;transition:width .4s;}
+
+/* ── DASHBOARD ── */
+.clock-wrap{display:flex;flex-direction:column;align-items:center;padding:12px 0 8px;gap:6px;}
+.clock-date{font-size:12px;color:var(--txs);}
+.period-hdr{padding:5px 14px 3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.member-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .1s;}
+.member-row:hover{background:rgba(255,255,255,.5);}
+.mini-bar-wrap{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.mini-bar-track{flex:1;height:4px;background:rgba(180,160,220,.18);border-radius:4px;overflow:hidden;}
+.mini-bar-fill{height:100%;border-radius:4px;}
+
+/* ── SETTINGS ── */
+.settings-panel{position:absolute;top:44px;right:10px;background:#fff;border-radius:14px;border:.5px solid var(--gb);padding:16px;z-index:200;box-shadow:0 8px 24px rgba(60,48,100,.15);min-width:240px;}
+
+/* ── TOAST & XP POP ── */
+.toast{position:fixed;top:calc(var(--safe-top) + 64px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--acc);color:#fff;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:300;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* ── Completed section toggle ── */
-.completed-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 0 10px;color:var(--text-secondary);font-size:12px;font-weight:500;border:none;background:none;font-family:inherit;}
-.completed-toggle .ti{font-size:14px;transition:transform 0.2s;}
-.completed-toggle.open .ti{transform:rotate(90deg);}
+.xp-pop{position:fixed;top:calc(var(--safe-top) + 100px);right:16px;background:#1D9E75;color:#fff;border-radius:16px;padding:6px 14px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s,transform .4s;z-index:300;transform:translateY(0);}
+.xp-pop.show{opacity:1;transform:translateY(-12px);}
+.empty-state{text-align:center;padding:28px;color:var(--txh);font-size:14px;}
+.back-btn{display:flex;align-items:center;gap:6px;border:none;background:rgba(255,255,255,.7);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--txs);cursor:pointer;margin-bottom:12px;font-family:inherit;}
+.swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border .15s;}
+.swatch.sel{border-color:#3a3060;}
+.colour-row{display:flex;gap:7px;flex-wrap:wrap;}
+.info-note{background:var(--acc-s);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--acc-d);font-weight:500;margin-bottom:12px;}
+.req-alert{width:100%;border:1.5px solid #E07B3A;background:#FFF7ED;border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;margin-bottom:10px;}
+.shop-item{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;}
 </style>
 </head>
 <body>
-
 <div id="app">
-  <!-- Top bar -->
-  <div class="top-bar">
-    <div class="user-switcher" id="switcher">
-      <button class="user-btn active" data-u="mum" onclick="switchUser('mum')">
-        <div class="av-wrap"><div class="avatar" id="av-mum" style="background:var(--mum)">M</div></div>
-        <span class="uname">Mum</span>
-      </button>
-      <button class="user-btn" data-u="dad" onclick="switchUser('dad')">
-        <div class="av-wrap"><div class="avatar" id="av-dad" style="background:var(--dad)">D</div></div>
-        <span class="uname">Dad</span>
-      </button>
-      <button class="user-btn" data-u="sophie" onclick="switchUser('sophie')">
-        <div class="av-wrap">
-          <div class="avatar" id="av-sophie" style="background:var(--sophie)">S</div>
-          <span class="badge-icon">🐱</span>
-        </div>
-        <span class="uname">Sophie</span>
-      </button>
-      <button class="user-btn" data-u="olivia" onclick="switchUser('olivia')">
-        <div class="av-wrap">
-          <div class="avatar" id="av-olivia" style="background:var(--olivia)">O</div>
-          <span class="badge-icon">🌸</span>
-        </div>
-        <span class="uname">Olivia</span>
-      </button>
-    </div>
-    <div class="greeting">
-      <div class="g-left">
-        <div class="g-date" id="g-date"></div>
-        <div class="g-name" id="g-name">Good morning, Mum</div>
-      </div>
-      <div class="xp-chip" onclick="showXpInfo()">
-        <i class="ti ti-star"></i>
-        <span id="g-xp">0 XP</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scroll area -->
-  <div class="scroll-area" id="scroll-area">
-    <div id="task-list"></div>
-    <div class="fab-wrap">
-      <button class="fab" onclick="openSheet()" aria-label="Add task">
-        <i class="ti ti-plus"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Bottom nav -->
-  <div class="bottom-bar">
-    <div class="nav-inner">
-      <button class="nav-btn active" aria-label="Tasks">
-        <i class="ti ti-check"></i>
-        <span>Tasks</span>
-      </button>
-      <button class="nav-btn" aria-label="Calendar" onclick="comingSoon('Calendar')">
-        <i class="ti ti-calendar"></i>
-        <span>Calendar</span>
-      </button>
-      <button class="nav-btn" aria-label="Family" onclick="comingSoon('Family')">
-        <i class="ti ti-users"></i>
-        <span>Family</span>
-      </button>
-      <button class="nav-btn" aria-label="Settings" onclick="comingSoon('Settings')">
-        <i class="ti ti-settings"></i>
-        <span>Settings</span>
-      </button>
-    </div>
-  </div>
+  <div class="top-bar" id="top-bar"></div>
+  <div class="scroll" id="main"></div>
+  <div class="bot-bar" id="nav"></div>
 </div>
-
-<!-- Add task sheet -->
-<div class="sheet-overlay" id="sheet-overlay" onclick="overlayClick(event)">
-  <div class="sheet" id="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">New task</div>
-
-    <div class="field">
-      <label>Task name</label>
-      <input type="text" id="f-title" placeholder="e.g. Take vitamins" autocomplete="off"/>
-    </div>
-
-    <div class="field">
-      <label>Type</label>
-      <div class="pill-row">
-        <div class="pill on" data-type="habit" onclick="setType('habit')">Habit — recurring</div>
-        <div class="pill" data-type="todo" onclick="setType('todo')">To-do — one off</div>
-      </div>
-    </div>
-
-    <div class="field" id="f-recur">
-      <label>Repeats</label>
-      <div class="pill-row">
-        <div class="pill on" data-recur="daily" onclick="setRecur('daily')">Daily</div>
-        <div class="pill" data-recur="weekdays" onclick="setRecur('weekdays')">Weekdays</div>
-        <div class="pill" data-recur="weekly" onclick="setRecur('weekly')">Weekly</div>
-      </div>
-    </div>
-
-    <div class="field" id="f-due" style="display:none">
-      <label>Due date</label>
-      <input type="date" id="f-date"/>
-    </div>
-
-    <div class="field">
-      <label>Assign to</label>
-      <div class="assign-row" id="assign-row">
-        <div class="a-chip on" data-a="mum" onclick="toggleAssign('mum')">
-          <div class="a-av" style="background:var(--mum)">M</div>
-          <span class="a-name">Mum</span>
-        </div>
-        <div class="a-chip" data-a="dad" onclick="toggleAssign('dad')">
-          <div class="a-av" style="background:var(--dad)">D</div>
-          <span class="a-name">Dad</span>
-        </div>
-        <div class="a-chip" data-a="sophie" onclick="toggleAssign('sophie')">
-          <div class="a-av" style="background:var(--sophie)">S</div>
-          <span class="a-name">Sophie</span>
-        </div>
-        <div class="a-chip" data-a="olivia" onclick="toggleAssign('olivia')">
-          <div class="a-av" style="background:var(--olivia)">O</div>
-          <span class="a-name">Olivia</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Visibility</label>
-      <div class="pill-row">
-        <div class="pill" data-vis="personal" onclick="setVis('personal')">Personal</div>
-        <div class="pill on" data-vis="shared" onclick="setVis('shared')">Shared</div>
-        <div class="pill" data-vis="parents" onclick="setVis('parents')">Parents only</div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>XP reward — <span id="f-xp-lbl" style="color:var(--accent);font-weight:700">10 XP</span></label>
-      <div class="xp-row">
-        <input type="range" id="f-xp" min="0" max="50" step="5" value="10"
-          oninput="document.getElementById('f-xp-lbl').textContent=this.value+' XP'"/>
-      </div>
-    </div>
-
-    <div class="field" id="f-completion-wrap">
-      <label>When someone completes this shared task</label>
-      <div class="pill-row">
-        <div class="pill on" data-comp="all" onclick="setComp('all')">Done for everyone</div>
-        <div class="pill" data-comp="each" onclick="setComp('each')">Each person individually</div>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-cancel" onclick="closeSheet()">Cancel</button>
-      <button class="btn btn-primary" onclick="addTask()">Add task</button>
-    </div>
-  </div>
-</div>
-
-<!-- XP toast -->
 <div class="toast" id="toast"></div>
+<div class="xp-pop" id="xp-pop"></div>
+<div class="celebrate" id="celebrate" style="display:none">
+  <div class="celebrate-box">
+    <div id="cel-icon" style="font-size:52px;margin-bottom:10px"></div>
+    <div style="font-size:20px;font-weight:700;color:var(--tx);margin-bottom:8px">Reward claimed! 🎉</div>
+    <div id="cel-msg" style="font-size:14px;color:var(--txs);margin-bottom:14px"></div>
+    <div style="background:var(--acc-s);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--acc-d);font-weight:600;margin-bottom:16px">💡 Show this to Mum or Dad to collect your reward!</div>
+    <button onclick="closeCelebrate()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--acc);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Woohoo! Close 🎊</button>
+  </div>
+</div>
 
 <script>
-/* ─── Data ─── */
-const USERS = {
-  mum:    { name:'Mum',    greet:'Good morning',  xpKey:'xp_mum',    accent:'#7F77DD', soft:'#EEEDFE', dark:'#3C3489', isKid:false },
-  dad:    { name:'Dad',    greet:'Good morning',  xpKey:'xp_dad',    accent:'#1D9E75', soft:'#E1F5EE', dark:'#085041', isKid:false },
-  sophie: { name:'Sophie', greet:'Morning',       xpKey:'xp_sophie', accent:'#D05A8A', soft:'#FBEAF0', dark:'#72243E', isKid:true  },
-  olivia: { name:'Olivia', greet:'Morning',       xpKey:'xp_olivia', accent:'#9B6FD4', soft:'#F0EBFB', dark:'#5B3A8A', isKid:true  },
+/* ═══════════════════════════════════════════
+   TIDO UNIFIED STATE
+═══════════════════════════════════════════ */
+const DEFAULT_STATE = {
+  cur: 'mum',
+  module: 'dashboard',
+  location: 'Your Town',
+  xp: {mum:1265, dad:1005, sophie:645, olivia:425},
+  family: {
+    mum:   {name:'Mum',   color:'#7F77DD',soft:'#EEEDFE',dark:'#3C3489',isKid:false},
+    dad:   {name:'Dad',   color:'#1D9E75',soft:'#E1F5EE',dark:'#085041',isKid:false},
+    sophie:{name:'Sophie',color:'#D05A8A',soft:'#FBEAF0',dark:'#72243E',isKid:true, emoji:'🐱',screenTarget:50,screenMins:45},
+    olivia:{name:'Olivia',color:'#9B6FD4',soft:'#F0EBFB',dark:'#5B3A8A',isKid:true, emoji:'🌸',screenTarget:40,screenMins:30},
+  },
+  tasks: [
+    {id:'t1',type:'habit',title:'Take supplements',   assignedTo:['mum'],    visibility:'personal',recurrence:'daily',  completionType:'each',xp:10,streak:{mum:14},  completedToday:[]},
+    {id:'t2',type:'habit',title:'Morning skincare',   assignedTo:['mum'],    visibility:'personal',recurrence:'daily',  completionType:'each',xp:10,streak:{mum:7},   completedToday:[]},
+    {id:'t3',type:'habit',title:'Morning run',        assignedTo:['dad'],    visibility:'personal',recurrence:'daily',  completionType:'each',xp:15,streak:{dad:9},   completedToday:['dad']},
+    {id:'t4',type:'habit',title:'Family dinner',      assignedTo:['mum','dad','sophie','olivia'],visibility:'shared',recurrence:'daily',completionType:'all',xp:5,streak:{mum:21,dad:21,sophie:21,olivia:21},completedToday:[]},
+    {id:'t5',type:'habit',title:'Brush teeth (morn)', assignedTo:['sophie'], visibility:'personal',recurrence:'daily',  completionType:'each',xp:10,streak:{sophie:12},completedToday:['sophie']},
+    {id:'t6',type:'habit',title:'Read 15 mins',       assignedTo:['sophie'], visibility:'personal',recurrence:'daily',  completionType:'each',xp:15,streak:{sophie:4}, completedToday:[]},
+    {id:'t7',type:'habit',title:'Brush teeth (morn)', assignedTo:['olivia'], visibility:'personal',recurrence:'daily',  completionType:'each',xp:10,streak:{olivia:8}, completedToday:[]},
+    {id:'t8',type:'habit',title:'Tidy toys',          assignedTo:['olivia'], visibility:'personal',recurrence:'daily',  completionType:'each',xp:10,streak:{olivia:3}, completedToday:[]},
+    {id:'t9',type:'todo', title:'Book dentist',       assignedTo:['mum'],    visibility:'personal',recurrence:null,     completionType:'each',xp:5, streak:{},          completedToday:[],dueDate:'Fri'},
+    {id:'t10',type:'todo',title:'Order school shoes', assignedTo:['mum'],    visibility:'shared',  recurrence:null,     completionType:'all', xp:5, streak:{},          completedToday:[],dueDate:'Today',overdue:true},
+    {id:'t11',type:'todo',title:'Maths homework',     assignedTo:['sophie'], visibility:'personal',recurrence:null,     completionType:'each',xp:20,streak:{},          completedToday:[],dueDate:'Thu'},
+  ],
+  events: [
+    {id:'e1',title:'School run',         date:'2026-06-23',startTime:'08:15',endTime:'08:45',allDay:false,type:'school',  assignedTo:['mum','sophie','olivia'],notes:'',location:'',remindDays:3},
+    {id:'e2',title:'Sophie — swimming',  date:'2026-06-23',startTime:'16:00',endTime:'17:00',allDay:false,type:'sport',   assignedTo:['sophie'],notes:'',location:'Leisure Centre',remindDays:1},
+    {id:'e3',title:'Family dinner',      date:'2026-06-23',startTime:'18:30',endTime:'',     allDay:false,type:'family',  assignedTo:['mum','dad','sophie','olivia'],notes:'Pizza night',location:'',remindDays:0},
+    {id:'e4',title:'Dad — late meeting', date:'2026-06-23',startTime:'17:30',endTime:'',     allDay:false,type:'other',   assignedTo:['dad'],notes:'',location:'',remindDays:0},
+    {id:'e5',title:'Dentist — Olivia',   date:'2026-06-24',startTime:'10:00',endTime:'10:30',allDay:false,type:'health',  assignedTo:['olivia','mum'],notes:'',location:'Town Dental',remindDays:1},
+    {id:'e6',title:'Dad — work trip',    date:'2026-06-24',startTime:'',     endTime:'',     allDay:true, type:'other',   assignedTo:['dad'],notes:'Back Thursday',location:'London',remindDays:0},
+    {id:'e7',title:'School sports day',  date:'2026-06-25',startTime:'09:00',endTime:'15:00',allDay:false,type:'school',  assignedTo:['sophie','olivia','mum'],notes:'Pack sun cream',location:'School field',remindDays:3},
+  ],
+  plan: {
+    'Mon-dinner':   {mealName:'Chicken Stir Fry',mealId:'m2',votes:{sophie:1,olivia:1,dad:1}},
+    'Tue-dinner':   {mealName:'Salmon with Veg', mealId:'m7',votes:{sophie:-1}},
+    'Wed-dinner':   {mealName:'Beef Tacos 🌮',   mealId:'m6',votes:{sophie:1,olivia:1,mum:1,dad:1}},
+    'Thu-dinner':   null,
+    'Fri-dinner':   {mealName:'Fish and Chips',  mealId:'m3',votes:{}},
+    'Sat-breakfast':{mealName:'Pancakes',        mealId:'m13',votes:{sophie:1,olivia:1}},
+    'Sat-lunch':    null,
+    'Sat-dinner':   {mealName:'Homemade Pizza',  mealId:'m4',votes:{sophie:1,olivia:1,mum:1,dad:1},kidsChoice:true},
+    'Sun-breakfast':null,
+    'Sun-lunch':    {mealName:'Tomato Soup',     mealId:'m15',votes:{}},
+    'Sun-dinner':   {mealName:'Roast Chicken',   mealId:'m5',votes:{mum:1,dad:1}},
+  },
+  meals: [
+    {id:'m1',name:'Spaghetti Bolognese',isFav:true, lastServed:20},
+    {id:'m2',name:'Chicken Stir Fry',   isFav:true, lastServed:5},
+    {id:'m3',name:'Fish and Chips',     isFav:false,lastServed:14},
+    {id:'m4',name:'Homemade Pizza',     isFav:true, lastServed:10},
+    {id:'m5',name:'Roast Chicken',      isFav:true, lastServed:21},
+    {id:'m6',name:'Beef Tacos',         isFav:false,lastServed:7},
+    {id:'m7',name:'Salmon with Veg',    isFav:false,lastServed:3},
+    {id:'m8',name:'Mac and Cheese',     isFav:true, lastServed:18},
+    {id:'m9',name:'Chicken Curry',      isFav:true, lastServed:25},
+    {id:'m10',name:'Lasagne',           isFav:true, lastServed:35},
+    {id:'m13',name:'Pancakes',          isFav:true, lastServed:12},
+    {id:'m15',name:'Tomato Soup',       isFav:false,lastServed:9},
+  ],
+  goals: {
+    mum:   [{id:'mg1',title:'Relaxing bath night',icon:'🛁',cost:300},{id:'mg2',title:'Pick the family movie',icon:'🎬',cost:150},{id:'mg3',title:'Date night',icon:'🌙',cost:500}],
+    dad:   [{id:'dg1',title:'Pick the family movie',icon:'🎬',cost:150},{id:'dg2',title:'Breakfast in bed',icon:'🍳',cost:250}],
+    sophie:[{id:'sg1',title:'Extra screen time',icon:'🎮',cost:200},{id:'sg2',title:'Choose Friday dinner',icon:'🍕',cost:150},{id:'sg3',title:'New book',icon:'📚',cost:400,pending:true,suggestedBy:'sophie',note:"I've been reading lots!"}],
+    olivia:[{id:'og1',title:'New toy',icon:'🧸',cost:500},{id:'og2',title:'Ice cream treat',icon:'🍦',cost:100}],
+  },
+  claimed: [],
+  screenToday: {sophie:42, olivia:28},
+  badges: [
+    {e:'🔥',name:'7-day streak',earned:true},  {e:'⭐',name:'100 XP club',earned:true},
+    {e:'✅',name:'First task',  earned:true},  {e:'🌅',name:'Early bird', earned:true},
+    {e:'🏆',name:'Perfect week',earned:false}, {e:'💫',name:'500 XP',    earned:false},
+    {e:'🎯',name:'10 tasks',    earned:false}, {e:'🎁',name:'1st reward', earned:false},
+  ],
+  badgeToggles:{'7-day streak':true,'Perfect week':true,'100 XP milestone':true,'Early bird':false,'First goal claimed':true},
+  mealRequests:[
+    {id:'r1',mealName:'Spaghetti Bolognese',requestedBy:'sophie',requestedFor:'Thu-dinner',status:'pending',parentNote:''},
+  ],
+  lastReset: null,
 };
 
-const EMOJI = { sophie:'🐱', olivia:'🌸' };
+/* ── State & helpers ── */
+let S = {};
+let subview = null; // for within-module navigation
+let subdata = {};   // extra data for subview
+let gradAngle = 160, gradDir = 1;
+let calWeekAnchor = new Date(2026,5,23);
+let calSelDay = new Date(2026,5,23);
+let addTaskOpen = false;
+let addTaskForm = {};
+let calAddOpen = false; let calAddForm = {};
+let mealSubview = 'plan'; let mealAddTab = 'free'; let mealActiveSlot = null;
+let mealFreeText = ''; let mealSaveToDb = false; let mealNewFav = false;
+let aiSuggestions = []; let aiLoading = false; let aiError = '';
+let rewardsTab = 'goals'; let pinEntry = ''; let pinUnlocked = false;
+let showSettings = false;
+let shopItems = [];
 
-const SEED_TASKS = [
-  { id:'s1', type:'habit', title:'Take supplements',    assignedTo:['mum'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{mum:14},   completedToday:[] },
-  { id:'s2', type:'habit', title:'Morning skincare',    assignedTo:['mum'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{mum:7},    completedToday:[] },
-  { id:'s3', type:'habit', title:'Exercise',            assignedTo:['mum'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:15, streak:{mum:3},    completedToday:[] },
-  { id:'s4', type:'habit', title:'Morning run',         assignedTo:['dad'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:15, streak:{dad:9},    completedToday:['dad'] },
-  { id:'s5', type:'habit', title:'Take supplements',    assignedTo:['dad'],              visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{dad:5},    completedToday:[] },
-  { id:'s6', type:'habit', title:'Family dinner',       assignedTo:['mum','dad','sophie','olivia'], visibility:'shared', recurrence:'daily', completionType:'all', xp:5, streak:{mum:21,dad:21,sophie:21,olivia:21}, completedToday:[] },
-  { id:'s7', type:'habit', title:'Brush teeth (morning)', assignedTo:['sophie'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{sophie:12}, completedToday:['sophie'] },
-  { id:'s8', type:'habit', title:'Brush teeth (evening)', assignedTo:['sophie'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{sophie:12}, completedToday:[] },
-  { id:'s9', type:'habit', title:'Read for 15 mins',    assignedTo:['sophie'],           visibility:'personal', recurrence:'daily',    completionType:'each', xp:15, streak:{sophie:4},  completedToday:[] },
-  { id:'s10',type:'habit', title:'Pack school bag',     assignedTo:['sophie'],           visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{sophie:6},  completedToday:['sophie'] },
-  { id:'s11',type:'habit', title:'Brush teeth (morning)', assignedTo:['olivia'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{olivia:8},  completedToday:[] },
-  { id:'s12',type:'habit', title:'Brush teeth (evening)', assignedTo:['olivia'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{olivia:8},  completedToday:[] },
-  { id:'s13',type:'habit', title:'Tidy toys before bed',  assignedTo:['olivia'],         visibility:'personal', recurrence:'daily',    completionType:'each', xp:10, streak:{olivia:3},  completedToday:[] },
-  { id:'t1', type:'todo',  title:'Book dentist',        assignedTo:['mum'],              visibility:'personal', recurrence:null,       completionType:'each', xp:5,  streak:{},          completedToday:[], dueDate:'Fri', dueMs:daysFromNow(4) },
-  { id:'t2', type:'todo',  title:'Order school shoes',  assignedTo:['mum'],              visibility:'shared',   recurrence:null,       completionType:'all',  xp:5,  streak:{},          completedToday:[], dueDate:'Today', dueMs:daysFromNow(0), overdue:true },
-  { id:'t3', type:'todo',  title:'Fix garden gate',     assignedTo:['dad'],              visibility:'personal', recurrence:null,       completionType:'each', xp:10, streak:{},          completedToday:[], dueDate:'Sat', dueMs:daysFromNow(5) },
-  { id:'t4', type:'todo',  title:'Pay car insurance',   assignedTo:['dad'],              visibility:'personal', recurrence:null,       completionType:'each', xp:5,  streak:{},          completedToday:[], dueDate:'Tomorrow', dueMs:daysFromNow(1) },
-  { id:'t5', type:'todo',  title:'Maths homework',      assignedTo:['sophie'],           visibility:'personal', recurrence:null,       completionType:'each', xp:20, streak:{},          completedToday:[], dueDate:'Thu', dueMs:daysFromNow(3) },
-  { id:'t6', type:'todo',  title:'Draw card for Grandma', assignedTo:['olivia'],         visibility:'personal', recurrence:null,       completionType:'each', xp:15, streak:{},          completedToday:[], dueDate:'Fri', dueMs:daysFromNow(4) },
-];
+const TODAY = new Date(2026,5,23);
+const WEEKDAYS=['Mon','Tue','Wed','Thu','Fri'];
+const WEEKEND=['Sat','Sun'];
+const ALL_DAYS=[...WEEKDAYS,...WEEKEND];
+const TYPE_ICON={family:'👨‍👩‍👧',school:'🎓',birthday:'🎂',health:'🏥',sport:'⚽',other:'📌'};
+const EVENT_TYPES=[{id:'family',label:'Family',icon:'👨‍👩‍👧'},{id:'school',label:'School',icon:'🎓'},{id:'birthday',label:'Birthday',icon:'🎂'},{id:'health',label:'Health',icon:'🏥'},{id:'sport',label:'Sport',icon:'⚽'},{id:'other',label:'Other',icon:'📌'}];
+const MEAL_EMOJIS=['🎬','🛁','🍕','🎮','📚','🧸','🍦','🌙','💅','🎉','💰','🚲'];
+const COLOURS=['#7F77DD','#1D9E75','#D05A8A','#9B6FD4','#E07B3A','#3B82F6','#EF4444','#F59E0B'];
 
-const XP_DEFAULTS = { mum:1240, dad:980, sophie:620, olivia:410 };
-
-function daysFromNow(d){ return Date.now() + d*86400000; }
-
-/* ─── State ─── */
-let cur = 'mum';
-let tasks = [];
-let xp = {};
-let showCompleted = false;
-
-/* form state */
-let fType='habit', fRecur='daily', fVis='shared', fComp='all', fAssigned=['mum'];
-
-/* ─── Storage ─── */
+/* ── Persistence ── */
 function save(){
-  try{
-    localStorage.setItem('tido_tasks', JSON.stringify(tasks));
-    localStorage.setItem('tido_xp', JSON.stringify(xp));
-    localStorage.setItem('tido_lastUser', cur);
-    checkMidnightReset();
-  } catch(e){}
+  try{ localStorage.setItem('tido_v2', JSON.stringify(S)); }catch(e){}
 }
-
 function load(){
   try{
-    const t = localStorage.getItem('tido_tasks');
-    const x = localStorage.getItem('tido_xp');
-    tasks = t ? JSON.parse(t) : JSON.parse(JSON.stringify(SEED_TASKS));
-    xp    = x ? JSON.parse(x) : {...XP_DEFAULTS};
-    cur   = localStorage.getItem('tido_lastUser') || 'mum';
-    checkMidnightReset();
-  } catch(e){
-    tasks = JSON.parse(JSON.stringify(SEED_TASKS));
-    xp    = {...XP_DEFAULTS};
+    const raw = localStorage.getItem('tido_v2');
+    S = raw ? {...DEFAULT_STATE,...JSON.parse(raw)} : JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }catch(e){
+    S = JSON.parse(JSON.stringify(DEFAULT_STATE));
   }
+  checkMidnightReset();
 }
-
 function checkMidnightReset(){
   const today = new Date().toDateString();
-  const last  = localStorage.getItem('tido_lastReset');
-  if(last !== today){
-    tasks.forEach(t => {
-      if(t.type==='habit') t.completedToday = [];
-    });
-    localStorage.setItem('tido_lastReset', today);
+  if(S.lastReset !== today){
+    S.tasks.forEach(t=>{if(t.type==='habit') t.completedToday=[];});
+    S.screenToday = {sophie:0, olivia:0};
+    S.lastReset = today;
+    save();
   }
 }
 
-/* ─── Greeting helpers ─── */
-function greeting(){
-  const h = new Date().getHours();
-  if(h < 12) return 'Good morning';
-  if(h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-function formatDate(){
-  return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+/* ── Accent ── */
+function applyAccent(){
+  const u = S.family[S.cur];
+  if(!u) return;
+  document.documentElement.style.setProperty('--acc',   u.color);
+  document.documentElement.style.setProperty('--acc-s', u.soft);
+  document.documentElement.style.setProperty('--acc-d', u.dark);
 }
 
-/* ─── Accent ─── */
-function applyAccent(u){
-  const usr = USERS[u];
-  document.documentElement.style.setProperty('--accent', usr.accent);
-  document.documentElement.style.setProperty('--accent-soft', usr.soft);
-  document.documentElement.style.setProperty('--accent-dark', usr.dark);
+/* ── Animated gradient ── */
+function animGrad(){
+  gradAngle += gradDir*0.25;
+  if(gradAngle>=200)gradDir=-1; if(gradAngle<=120)gradDir=1;
+  document.documentElement.style.setProperty('--bg',`linear-gradient(${gradAngle}deg,#f9eef8 0%,#f0ebfa 20%,#e8edfb 45%,#ddeef8 70%,#e8e4f8 100%)`);
+  requestAnimationFrame(animGrad);
 }
 
-/* ─── Switch user ─── */
-function switchUser(u){
-  cur = u;
-  applyAccent(u);
-  document.querySelectorAll('.user-btn').forEach(b => b.classList.toggle('active', b.dataset.u===u));
-  const usr = USERS[u];
-  const emoji = EMOJI[u] ? ' '+EMOJI[u] : '!';
-  document.getElementById('g-name').textContent = usr.greet+', '+usr.name+emoji;
-  document.getElementById('g-xp').textContent = (xp[u]||0).toLocaleString()+' XP';
-  document.getElementById('g-date').textContent = formatDate();
-  render();
-  save();
+/* ── Toast & XP pop ── */
+let toastT, xpT;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2500);
+}
+function showXpPop(amt, uid){
+  const el=document.getElementById('xp-pop');
+  el.textContent=`+${amt} XP → ${S.family[uid]?.name||uid}`;
+  el.classList.add('show');
+  clearTimeout(xpT); xpT=setTimeout(()=>el.classList.remove('show'),2000);
 }
 
-/* ─── Render ─── */
+/* ── Date/time helpers ── */
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function fmtDate(d){return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}
+function fmtShort(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function fmtTime(t){if(!t)return'';const[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';return`${h%12||12}:${String(m).padStart(2,'0')}${ap}`;}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function getWeekDays(anchor){const d=new Date(anchor),dow=d.getDay(),mon=new Date(d);mon.setDate(d.getDate()-((dow+6)%7));return Array.from({length:7},(_,i)=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x;});}
+function getMealTypes(day){return WEEKDAYS.includes(day)?['dinner']:['breakfast','lunch','dinner'];}
+function timePeriod(e){if(e.allDay)return'morning';if(!e.startTime)return'afternoon';const h=parseInt(e.startTime.split(':')[0]);return h<12?'morning':h<17?'afternoon':'evening';}
+function eventsForDay(day){
+  const ds=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+  return S.events.filter(e=>e.date===ds).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return(a.startTime||'99:99').localeCompare(b.startTime||'99:99');});
+}
+function getTonightsDinner(){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const d=days[TODAY.getDay()];
+  return (S.plan[`${d}-dinner`]||{}).mealName||null;
+}
+function getScreenXpToday(uid){return S.screenToday[uid]||0;}
+
+/* ── Analog clock SVG ── */
+let clockRAF;
+function clockSvg(size=150){
+  const cx=size/2,cy=size/2;
+  const now=new Date();
+  const s=now.getSeconds(),m=now.getMinutes()+s/60,h=(now.getHours()%12)+m/60;
+  function hand(val,max,len,w,col,cls){const a=(val/max*360-90)*Math.PI/180;return`<line class="${cls}" x1="${cx}" y1="${cy}" x2="${cx+Math.cos(a)*len}" y2="${cy+Math.sin(a)*len}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;}
+  const ticks=Array.from({length:12},(_,i)=>{const a=(i/12)*Math.PI*2-Math.PI/2,r1=cx-6,r2=cx-14;return`<line x1="${cx+Math.cos(a)*r1}" y1="${cy+Math.sin(a)*r1}" x2="${cx+Math.cos(a)*r2}" y2="${cy+Math.sin(a)*r2}" stroke="rgba(180,160,220,0.5)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;}).join('');
+  const nums=[12,3,6,9].map((n,i)=>{const a=(i/4)*Math.PI*2-Math.PI/2,r=cx-26;return`<text x="${cx+Math.cos(a)*r}" y="${cy+Math.sin(a)*r}" text-anchor="middle" dominant-baseline="central" font-size="${size*0.1}" font-weight="700" fill="rgba(58,48,96,0.7)" font-family="-apple-system,sans-serif">${n}</text>`;}).join('');
+  const acc=S.family[S.cur]?.color||'#7F77DD';
+  return`<svg id="clock-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${cx}" cy="${cy}" r="${cx-2}" fill="rgba(255,255,255,0.85)" stroke="rgba(180,160,220,0.3)" stroke-width="1.5"/>
+    ${ticks}${nums}
+    ${hand(h,12,size*0.27,size*0.035,'#3a3060','hand-h')}
+    ${hand(m,60,size*0.35,size*0.025,'#3a3060','hand-m')}
+    ${hand(s,60,size*0.37,size*0.012,acc,'hand-s')}
+    <circle cx="${cx}" cy="${cy}" r="${size*0.035}" fill="${acc}"/>
+    <circle cx="${cx}" cy="${cy}" r="${size*0.015}" fill="#fff"/>
+  </svg>`;
+}
+function tickClock(){
+  const svg=document.getElementById('clock-svg');
+  if(!svg){return;}
+  const now=new Date(),s=now.getSeconds(),m=now.getMinutes()+s/60,h=(now.getHours()%12)+m/60,size=150,cx=size/2,cy=size/2;
+  function pos(val,max,len){const a=(val/max*360-90)*Math.PI/180;return{x:cx+Math.cos(a)*len,y:cy+Math.sin(a)*len};}
+  const hh=pos(h,12,size*0.27),mh=pos(m,60,size*0.35),sh=pos(s,60,size*0.37);
+  svg.querySelector('.hand-h')?.setAttribute('x2',hh.x); svg.querySelector('.hand-h')?.setAttribute('y2',hh.y);
+  svg.querySelector('.hand-m')?.setAttribute('x2',mh.x); svg.querySelector('.hand-m')?.setAttribute('y2',mh.y);
+  svg.querySelector('.hand-s')?.setAttribute('x2',sh.x); svg.querySelector('.hand-s')?.setAttribute('y2',sh.y);
+  const dl=document.getElementById('clock-date'); if(dl) dl.textContent=fmtDate(new Date());
+  clockRAF=setTimeout(tickClock,1000);
+}
+
+/* ══════════════════════════════════════════
+   RENDER ENGINE
+══════════════════════════════════════════ */
 function render(){
-  const usr = USERS[cur];
-  const myTasks = tasks.filter(t => t.assignedTo.includes(cur));
-  const habits  = myTasks.filter(t => t.type==='habit');
-  const todos   = myTasks.filter(t => t.type==='todo');
-  const kidMode = usr.isKid ? 'kid-mode' : '';
-
-  const pendingHabits = habits.filter(t => !t.completedToday.includes(cur));
-  const doneHabits    = habits.filter(t =>  t.completedToday.includes(cur));
-  const pendingTodos  = todos.filter(t => !t.completedToday.includes(cur));
-  const doneTodos     = todos.filter(t =>  t.completedToday.includes(cur));
-
-  let html = '';
-
-  /* Habits */
-  if(habits.length){
-    html += `<div class="section-label">
-      <span><i class="ti ti-repeat" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>Habits</span>
-      <span class="section-count">${pendingHabits.length} left today</span>
-    </div>
-    <div class="card ${kidMode}">`;
-    pendingHabits.forEach(t => { html += taskRow(t); });
-    if(doneHabits.length){
-      html += completedToggle('habits', doneHabits, kidMode);
-    }
-    html += `</div>`;
-  }
-
-  /* Todos */
-  if(todos.length){
-    html += `<div class="section-label" style="margin-top:14px">
-      <span><i class="ti ti-list-check" style="font-size:12px;margin-right:4px;vertical-align:-1px"></i>To-dos</span>
-      <span class="section-count">${pendingTodos.length} open</span>
-    </div>
-    <div class="card ${kidMode}">`;
-    pendingTodos.forEach(t => { html += taskRow(t); });
-    if(doneTodos.length){
-      html += completedToggle('todos', doneTodos, kidMode);
-    }
-    html += `</div>`;
-  }
-
-  if(!habits.length && !todos.length){
-    html = `<div class="empty-state"><i class="ti ti-confetti"></i>Nothing here yet — tap + to add your first task!</div>`;
-  }
-
-  document.getElementById('task-list').innerHTML = html;
+  applyAccent();
+  renderTopBar();
+  renderNav();
+  renderMain();
 }
 
-function taskRow(t){
-  const done = t.completedToday.includes(cur);
-  const streak = t.streak[cur] || 0;
-
-  const streakHtml = streak > 0
-    ? `<div class="streak-pill"><i class="ti ti-flame"></i><span>${streak}</span></div>`
-    : `<div class="streak-zero"></div>`;
-
-  let sub = '';
-  if(t.assignedTo.length > 1) sub += `<span class="shared-tag">shared</span>`;
-  if(t.dueDate){
-    const od = t.overdue ? 'overdue' : '';
-    sub += `<span class="due-tag ${od}">${t.overdue ? '⚠ ' : ''}${t.dueDate}</span>`;
-  }
-
-  return `<div class="task-row${done?' done-row':''}" onclick="toggleTask('${t.id}')">
-    <div class="check${done?' done':''}"><i class="ti ti-check"></i></div>
-    ${streakHtml}
-    <div class="task-info">
-      <div class="task-title${done?' done':''}">${t.title}</div>
-      ${sub ? `<div class="task-sub">${sub}</div>` : ''}
+/* ── Top bar ── */
+function renderTopBar(){
+  const mod=S.module, u=S.family[S.cur]||{};
+  const isDash=mod==='dashboard';
+  let html='';
+  if(isDash){
+    html=`<div style="background:rgba(255,255,255,0.55);padding:8px 18px;display:flex;justify-content:space-between;align-items:center;margin:-10px -14px 10px;">
+      <span style="font-size:12px;color:var(--txs)">●●●</span>
+      <span style="font-size:12px;font-weight:700;color:var(--tx)">Tido</span>
+      <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
     </div>
-    <div class="xp-pill"><i class="ti ti-star"></i><span>${t.xp}</span></div>
+    <div class="dash-hdr"><div class="dash-title">🏠 Family Dashboard</div></div>
+    ${showSettings?settingsPanelHtml():''}`;
+  } else {
+    const pendingAdmin=(mod==='rewards')&&(allPending().length+(S.claimed||[]).filter(c=>!c.honoured).length)>0;
+    html=`<div class="status"><span id="clock-disp"></span><span style="font-weight:700;color:var(--tx)">Tido</span><span>100%</span></div>
+    <div class="user-row">
+      ${Object.entries(S.family).map(([uid,uu])=>`
+        <button class="ubtn ${S.cur===uid?'on':''}" onclick="setUser('${uid}')">
+          <div class="avw">
+            <div class="av" style="background:${uu.color}">${uu.name[0]}</div>
+            ${uu.emoji?`<span class="bicon">${uu.emoji}</span>`:''}
+          </div>
+          <span class="uname">${uu.name}</span>
+        </button>`).join('')}
+    </div>
+    <div class="grt">
+      <div>
+        <div style="font-size:10px;color:var(--txh);margin-bottom:2px">${fmtDate(new Date())}</div>
+        <div class="gname">Good morning, ${u.name}${u.emoji?' '+u.emoji:''}</div>
+      </div>
+      <div class="xp-chip"><i>⭐</i><span id="xp-display">${(S.xp[S.cur]||0).toLocaleString()} XP</span></div>
+    </div>`;
+  }
+  document.getElementById('top-bar').innerHTML=html;
+  // live clock for non-dashboard
+  if(!isDash){
+    const cd=document.getElementById('clock-disp');
+    if(cd) cd.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    setInterval(()=>{const el=document.getElementById('clock-disp');if(el)el.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});},30000);
+  }
+}
+
+/* ── Nav ── */
+function renderNav(){
+  const mod=S.module;
+  const tasksDot=S.module!=='tasks'&&myTasks().filter(t=>!t.completedToday.includes(S.cur)).length>0;
+  const rewardsDot=allPending().length>0||(S.claimed||[]).filter(c=>!c.honoured).length>0;
+  document.getElementById('nav').innerHTML=[
+    ['🏠','Home','dashboard'],['✅','Tasks','tasks'],['📅','Calendar','calendar'],
+    ['🍽️','Meals','meals'],['🎁','Rewards','rewards'],
+  ].map(([icon,label,m])=>`
+    <div class="nb-wrap">
+      <button class="nb ${mod===m?'on':''}" onclick="setModule('${m}')">
+        <span class="ni">${icon}</span><span class="nl">${label}</span>
+      </button>
+      ${(m==='tasks'&&tasksDot)||(m==='rewards'&&rewardsDot)?'<div class="notif-dot"></div>':''}
+    </div>`).join('');
+}
+
+/* ── Main content router ── */
+function renderMain(){
+  clearTimeout(clockRAF);
+  const m=document.getElementById('main');
+  if(S.module==='dashboard') m.innerHTML=renderDashboard();
+  else if(S.module==='tasks')    m.innerHTML=renderTasks();
+  else if(S.module==='calendar') m.innerHTML=renderCalendar();
+  else if(S.module==='meals')    m.innerHTML=renderMeals();
+  else if(S.module==='rewards')  m.innerHTML=renderRewards();
+  if(S.module==='dashboard') tickClock();
+}
+
+/* ══════════════════════════════════════════
+   MODULE: DASHBOARD
+══════════════════════════════════════════ */
+function renderDashboard(){
+  const todayEvs=eventsForDay(TODAY);
+  const morning=todayEvs.filter(e=>timePeriod(e)==='morning');
+  const afternoon=todayEvs.filter(e=>timePeriod(e)==='afternoon');
+  const evening=todayEvs.filter(e=>timePeriod(e)==='evening');
+  const tomorrowEvs=eventsForDay(addDays(TODAY,1));
+  const dinner=getTonightsDinner();
+  function period(label,bg,tc,evs){
+    const rows=evs.length?evs.map(e=>{
+      const col=S.family[e.assignedTo[0]]?.color||'#888';
+      const avs=e.assignedTo.slice(0,3).map(uid=>`<div class="ev-av" style="width:16px;height:16px;font-size:7px;background:${S.family[uid]?.color||'#888'}">${S.family[uid]?.name[0]||'?'}</div>`).join('');
+      return`<div class="event-row rsep" onclick="setModule('calendar')">
+        <div class="ev-bar" style="background:${col}"></div>
+        <span class="ev-icon" style="font-size:14px">${TYPE_ICON[e.type]||'📌'}</span>
+        <div class="ev-info"><div class="ev-title" style="font-size:12px">${e.title}</div><div class="ev-meta">${e.allDay?'All day':fmtTime(e.startTime)}</div></div>
+        <div class="ev-avs">${avs}</div>
+      </div>`;}).join(''):`<div class="empty-state" style="padding:8px 14px;font-size:12px">Nothing planned</div>`;
+    return`<div class="period-hdr" style="background:${bg};color:${tc}">${label}</div>${rows}`;
+  }
+  const memberRows=Object.entries(S.family).map(([uid,u])=>{
+    const myT=S.tasks.filter(t=>t.assignedTo.includes(uid));
+    const habits=myT.filter(t=>t.type==='habit');
+    const done=habits.filter(t=>t.completedToday.includes(uid)).length;
+    const total=habits.length||1;
+    const xpEarned=getScreenXpToday(uid);
+    const sTarget=u.screenTarget||50;
+    const screenOk=u.isKid&&xpEarned>=sTarget;
+    return`<div class="member-row rsep" onclick="setModule('tasks');setUser('${uid}')">
+      <div class="member-av-wrap" style="position:relative;flex-shrink:0">
+        <div style="width:34px;height:34px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${u.name[0]}</div>
+        ${u.emoji?`<span style="position:absolute;bottom:-2px;right:-4px;font-size:10px">${u.emoji}</span>`:''}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:13px;font-weight:700;color:var(--tx)">${u.name}</span>
+          <span style="font-size:10px;color:var(--txs)"><span style="color:${u.color}">⭐</span>${(S.xp[uid]||0).toLocaleString()}</span>
+        </div>
+        <div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${Math.round(done/total*100)}%;background:${u.color}"></div></div><span style="font-size:9px;color:var(--txs)">${done}/${total} habits</span></div>
+        ${u.isKid?`<div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${Math.min(100,Math.round(xpEarned/sTarget*100))}%;background:${screenOk?'#1D9E75':u.color}"></div></div><span style="font-size:9px;color:${screenOk?'#1D9E75':'var(--txs)'};font-weight:${screenOk?700:400}">${screenOk?`✓ ${u.screenMins||45}m`:`${xpEarned}/${sTarget} XP`}</span></div>`:''}
+      </div>
+      <span style="font-size:14px;color:var(--txh)">›</span>
+    </div>`;
+  }).join('');
+  return`<div class="clock-wrap">${clockSvg(148)}<div class="clock-date" id="clock-date">${fmtDate(new Date())}</div></div>
+    <div class="card" onclick="setModule('calendar')" style="cursor:pointer">
+      <div style="padding:11px 14px;display:flex;align-items:center;gap:10px">
+        <div style="font-size:30px">⛅</div>
+        <div style="flex:1">
+          <div style="font-size:22px;font-weight:700;color:var(--tx);display:inline">18°C</div>
+          <span style="font-size:13px;color:var(--txs);margin-left:6px">Partly cloudy</span>
+          <div style="font-size:11px;color:var(--txh)">${S.location} · H:21° L:13°</div>
+        </div>
+        <div style="display:flex;gap:7px">
+          ${[{t:'3pm',i:'🌦️',c:18},{t:'6pm',i:'🌧️',c:16},{t:'9pm',i:'🌙',c:14}].map(h=>`<div style="display:flex;flex-direction:column;align-items:center;gap:1px"><span style="font-size:9px;color:var(--txh)">${h.t}</span><span style="font-size:13px">${h.i}</span><span style="font-size:10px;font-weight:700;color:var(--txs)">${h.c}°</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${dinner?`<div class="card" onclick="setModule('meals')" style="cursor:pointer">
+      <div class="chdr">🍽️ Tonight's dinner</div>
+      <div style="padding:12px 14px;display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:12px;background:#FAEEDA;display:flex;align-items:center;justify-content:center;font-size:22px">🍽️</div>
+        <div><div style="font-size:16px;font-weight:700;color:var(--tx)">${dinner}</div><div style="font-size:12px;color:var(--txs)">Tap to see the full week</div></div>
+      </div>
+    </div>`:''}
+    <div class="card" onclick="setModule('calendar')" style="cursor:pointer">
+      <div class="chdr">📅 Today's plan</div>
+      ${period('🌅 Morning','#FFF7ED','#854F0B',morning)}
+      ${period('☀️ Afternoon','#E1F5EE','#085041',afternoon)}
+      ${period('🌙 Evening','#EEEDFE','#3C3489',evening)}
+    </div>
+    <div class="card">
+      <div class="chdr">👨‍👩‍👧 Family today</div>
+      ${memberRows}
+      <button onclick="subview='addmember';renderMain()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:none;background:none;cursor:pointer;font-family:inherit;width:100%;font-size:13px;color:var(--acc);font-weight:700;border-top:.5px solid rgba(180,160,220,.1)">＋ Add family member</button>
+    </div>
+    <div class="card">
+      <div class="chdr">📋 Tomorrow</div>
+      ${tomorrowEvs.length===0?`<div class="empty-state" style="padding:10px 14px;font-size:13px">Nothing planned yet</div>`:tomorrowEvs.map(e=>`<div class="event-row rsep"><span class="ev-icon" style="font-size:14px">${TYPE_ICON[e.type]||'📌'}</span><div class="ev-info"><div class="ev-title" style="font-size:13px">${e.title}</div><div class="ev-meta">${e.allDay?'All day':fmtTime(e.startTime)}</div></div></div>`).join('')}
+    </div>
+    <div style="height:4px"></div>`;
+}
+
+/* ══════════════════════════════════════════
+   MODULE: TASKS
+══════════════════════════════════════════ */
+function myTasks(){
+  return S.tasks.filter(t=>t.assignedTo.includes(S.cur));
+}
+function renderTasks(){
+  if(addTaskOpen) return renderAddTask();
+  const tasks=myTasks();
+  const habits=tasks.filter(t=>t.type==='habit');
+  const todos=tasks.filter(t=>t.type==='todo');
+  const isKid=S.family[S.cur]?.isKid;
+  const kidClass=isKid?'style="font-size:17px"':'';
+  function taskRowHtml(t){
+    const done=t.completedToday.includes(S.cur);
+    const streak=t.streak?.[S.cur]||0;
+    const streakHtml=streak>0?`<div class="streak-pill"><span>🔥</span><span>${streak}</span></div>`:`<div class="streak-zero"></div>`;
+    let sub='';
+    if(t.assignedTo.length>1) sub+=`<span class="shared-tag">shared</span>`;
+    if(t.dueDate) sub+=`<span class="due-tag ${t.overdue?'overdue':''}">${t.overdue?'⚠ ':''}${t.dueDate}</span>`;
+    return`<div class="task-row${done?' done-row':''} rsep" onclick="toggleTask('${t.id}')">
+      <div class="check${done?' done':''}"></div>
+      ${streakHtml}
+      <div class="task-info">
+        <div class="task-title${done?' done':''}" ${kidClass}>${t.title}</div>
+        ${sub?`<div class="task-sub">${sub}</div>`:''}
+      </div>
+      <div class="xp-pill"><span>⭐</span><span>${t.xp}</span></div>
+    </div>`;
+  }
+  const pendingH=habits.filter(t=>!t.completedToday.includes(S.cur)).length;
+  const pendingT=todos.filter(t=>!t.completedToday.includes(S.cur)).length;
+  return`
+    ${habits.length?`<div class="chdr" style="margin-bottom:6px;background:var(--glass);border-radius:12px;border:.5px solid var(--gb)">
+      <span>🔄 Habits</span><span class="chdr-count">${pendingH} left today</span></div>
+      <div class="card">${habits.map(taskRowHtml).join('')}</div>`:''}
+    ${todos.length?`<div class="chdr" style="margin-bottom:6px;background:var(--glass);border-radius:12px;border:.5px solid var(--gb)">
+      <span>✅ To-dos</span><span class="chdr-count">${pendingT} open</span></div>
+      <div class="card">${todos.map(taskRowHtml).join('')}</div>`:''}
+    ${!habits.length&&!todos.length?`<div class="empty-state"><div style="font-size:36px;margin-bottom:8px">✨</div>Nothing here yet!</div>`:''}
+    <div class="add-btn-row"><button class="fab" onclick="openAddTask()">＋</button></div>`;
+}
+function toggleTask(id){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  const done=t.completedToday.includes(S.cur);
+  if(done){
+    t.completedToday=t.completedToday.filter(u=>u!==S.cur);
+    if(t.type==='habit') t.streak[S.cur]=Math.max(0,(t.streak[S.cur]||0)-1);
+    S.xp[S.cur]=Math.max(0,(S.xp[S.cur]||0)-t.xp);
+    if(S.family[S.cur]?.isKid) S.screenToday[S.cur]=Math.max(0,(S.screenToday[S.cur]||0)-t.xp);
+  } else {
+    if(t.completionType==='all') t.completedToday=[...t.assignedTo];
+    else t.completedToday.push(S.cur);
+    if(t.type==='habit'){
+      t.streak=t.streak||{};
+      t.streak[S.cur]=(t.streak[S.cur]||0)+1;
+    }
+    S.xp[S.cur]=(S.xp[S.cur]||0)+t.xp;
+    if(S.family[S.cur]?.isKid) S.screenToday[S.cur]=(S.screenToday[S.cur]||0)+t.xp;
+    showXpPop(t.xp, S.cur);
+  }
+  save(); render();
+}
+function openAddTask(){
+  addTaskOpen=true;
+  addTaskForm={title:'',type:'habit',recurrence:'daily',visibility:'shared',completionType:'all',assignedTo:[S.cur],xp:10,dueDate:''};
+  renderMain();
+}
+function renderAddTask(){
+  const f=addTaskForm;
+  const isBday=f.type==='habit';
+  const assigns=Object.entries(S.family).map(([uid,u])=>`
+    <div class="a-chip ${f.assignedTo.includes(uid)?'on':''}" onclick="toggleAddAssign('${uid}')">
+      <div class="a-av" style="background:${u.color}">${u.name[0]}</div>
+      <span class="a-name">${u.name}</span>
+    </div>`).join('');
+  return`<div class="sheet">
+    <div class="shandle"></div>
+    <div class="sheet-title">New task</div>
+    <div class="field"><label>Task name</label><input type="text" id="f-title" value="${f.title}" oninput="addTaskForm.title=this.value" placeholder="e.g. Take vitamins"/></div>
+    <div class="field"><label>Type</label><div class="pill-row">
+      <div class="pill ${f.type==='habit'?'on':''}" onclick="setAddTaskType('habit')">Habit — recurring</div>
+      <div class="pill ${f.type==='todo'?'on':''}"  onclick="setAddTaskType('todo')">To-do — one off</div>
+    </div></div>
+    ${f.type==='habit'?`<div class="field"><label>Repeats</label><div class="pill-row">
+      ${['daily','weekdays','weekly'].map(r=>`<div class="pill ${f.recurrence===r?'on':''}" onclick="addTaskForm.recurrence='${r}';renderMain()">${r.charAt(0).toUpperCase()+r.slice(1)}</div>`).join('')}
+    </div></div>`:`<div class="field"><label>Due date</label><input type="date" id="f-due" value="${f.dueDate}" oninput="addTaskForm.dueDate=this.value"/></div>`}
+    <div class="field"><label>Assign to</label><div class="assign-row">${assigns}</div></div>
+    <div class="field"><label>Visibility</label><div class="pill-row">
+      ${['personal','shared','parents'].map(v=>`<div class="pill ${f.visibility===v?'on':''}" onclick="addTaskForm.visibility='${v}';renderMain()">${v.charAt(0).toUpperCase()+v.slice(1)}</div>`).join('')}
+    </div></div>
+    <div class="field"><label>XP reward — <span style="color:var(--acc);font-weight:700">${f.xp} XP</span></label>
+      <div class="xp-ctrl"><input type="range" min="0" max="50" step="5" value="${f.xp}" oninput="addTaskForm.xp=parseInt(this.value);this.previousElementSibling&&(document.querySelector('.field label span').textContent=this.value+' XP')"/></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="addTaskOpen=false;renderMain()">Cancel</button>
+      <button class="btn btn-p" onclick="submitAddTask()">Add task</button>
+    </div>
   </div>`;
 }
+function setAddTaskType(t){addTaskForm.type=t;renderMain();}
+function toggleAddAssign(uid){
+  const i=addTaskForm.assignedTo.indexOf(uid);
+  if(i>-1){if(addTaskForm.assignedTo.length>1)addTaskForm.assignedTo.splice(i,1);}
+  else addTaskForm.assignedTo.push(uid);
+  renderMain();
+}
+function submitAddTask(){
+  const title=(document.getElementById('f-title')?.value||addTaskForm.title).trim();
+  if(!title){showToast('Please add a title');return;}
+  const f=addTaskForm;
+  const streakInit={};f.assignedTo.forEach(u=>{streakInit[u]=0;});
+  const nt={id:'t'+Date.now(),type:f.type,title,assignedTo:[...f.assignedTo],visibility:f.visibility,recurrence:f.type==='habit'?f.recurrence:null,completionType:f.visibility==='shared'?f.completionType:'each',xp:f.xp,streak:streakInit,completedToday:[],dueDate:f.type==='todo'&&f.dueDate?new Date(f.dueDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):null};
+  S.tasks.push(nt); addTaskOpen=false; save(); showToast('Task added!'); render();
+}
 
-function completedToggle(id, doneTasks, kidMode){
-  const open = showCompleted;
-  let html = `<button class="completed-toggle${open?' open':''}" onclick="toggleCompleted()" style="padding-left:13px">
-    <i class="ti ti-chevron-right"></i>
-    <span>${doneTasks.length} completed</span>
-  </button>`;
-  if(open){
-    doneTasks.forEach(t => { html += taskRow(t); });
+/* ══════════════════════════════════════════
+   MODULE: CALENDAR
+══════════════════════════════════════════ */
+function renderCalendar(){
+  if(calAddOpen) return renderCalAdd();
+  if(subview==='cal-detail') return renderCalDetail();
+  const weekDays=getWeekDays(calWeekAnchor);
+  const DAY_NAMES=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const dayEvs=eventsForDay(calSelDay);
+  const allDay=dayEvs.filter(e=>e.allDay);
+  const timed=dayEvs.filter(e=>!e.allDay);
+  const isToday=sameDay(calSelDay,TODAY);
+  const rangeLabel=`${weekDays[0].toLocaleDateString('en-GB',{month:'short',day:'numeric'})} – ${weekDays[6].toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
+  const strip=`<div class="week-strip" style="background:var(--glass);border-bottom:.5px solid var(--gb);margin:-0px -0px 10px;">
+    <div class="week-nav">
+      <button class="wk-btn" onclick="calWeekAnchor=addDays(calWeekAnchor,-7);renderMain()">‹</button>
+      <span style="font-size:12px;font-weight:700;color:var(--tx)">${rangeLabel}</span>
+      <button class="wk-btn" onclick="calWeekAnchor=addDays(calWeekAnchor,7);renderMain()">›</button>
+    </div>
+    <div class="week-days">
+      ${weekDays.map((d,i)=>{
+        const isTd=sameDay(d,TODAY),isSel=sameDay(d,calSelDay);
+        const dots=eventsForDay(d).slice(0,3).map(e=>`<div class="day-dot" style="background:${S.family[e.assignedTo[0]]?.color||'#888'}"></div>`).join('');
+        return`<div class="day-cell ${isSel?'sel':''}" onclick="calSelDay=new Date(${d.getTime()});renderMain()">
+          <span class="dn">${DAY_NAMES[i]}</span>
+          <span class="day-num ${isTd?'today-num':''}">${d.getDate()}</span>
+          <div class="day-dots">${dots}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+  const evHtml=(e)=>{
+    const col=S.family[e.assignedTo[0]]?.color||'#888';
+    const avs=e.assignedTo.slice(0,3).map(uid=>`<div class="ev-av" style="background:${S.family[uid]?.color||'#888'}">${S.family[uid]?.name[0]||'?'}</div>`).join('');
+    return`<div class="event-row rsep" onclick="subview='cal-detail';subdata={eid:'${e.id}'};renderMain()">
+      <div class="ev-bar" style="background:${col}"></div>
+      <span class="ev-icon">${TYPE_ICON[e.type]||'📌'}</span>
+      <div class="ev-info"><div class="ev-title">${e.title}</div><div class="ev-meta">${e.allDay?'All day':fmtTime(e.startTime)}${e.location?' · '+e.location:''}</div></div>
+      <div class="ev-avs">${avs}</div>
+      <span style="font-size:16px;color:var(--txh)">›</span>
+    </div>`;
+  };
+  return`${strip}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px">
+      <div><div style="font-size:11px;color:var(--txh)">${isToday?'Today · ':''}</div><div style="font-size:17px;font-weight:700;color:var(--tx)">${fmtDate(calSelDay)}</div></div>
+      ${!isToday?`<button class="today-btn" onclick="calSelDay=new Date(TODAY.getTime());calWeekAnchor=new Date(TODAY.getTime());renderMain()">Today</button>`:''}
+    </div>
+    ${dayEvs.length===0?`<div class="card"><div class="empty-state"><div style="font-size:32px;margin-bottom:8px">📅</div>Nothing planned — enjoy the free time!</div></div>`:''}
+    ${allDay.length?`<div class="card"><div class="chdr">All day</div>${allDay.map(evHtml).join('')}</div>`:''}
+    ${timed.length?`<div class="card"><div class="chdr">Scheduled</div>${timed.map(evHtml).join('')}</div>`:''}
+    <div class="add-btn-row"><button class="fab" onclick="calAddOpen=true;calAddForm={title:'',date:'${calSelDay.toISOString().split('T')[0]}',startTime:'',endTime:'',allDay:false,type:'family',assignedTo:['mum','dad'],location:'',notes:'',remindDays:0};renderMain()">＋</button></div>`;
+}
+function renderCalDetail(){
+  const e=S.events.find(ev=>ev.id===subdata.eid); if(!e)return'';
+  const col=S.family[e.assignedTo[0]]?.color||'#888';
+  const typeLabel=EVENT_TYPES.find(t=>t.id===e.type)?.label||'Event';
+  const isBday=e.type==='birthday', isSchool=e.type==='school';
+  const people=e.assignedTo.map(uid=>{const u=S.family[uid];if(!u)return'';return`<span style="display:inline-flex;align-items:center;gap:4px;background:${u.soft||'#f0f0f0'};border-radius:20px;padding:3px 10px;font-size:12px;margin:2px"><span style="width:8px;height:8px;border-radius:50%;background:${u.color};display:inline-block"></span>${u.name}${u.emoji?' '+u.emoji:''}</span>`;}).join('');
+  let integration='';
+  if((isBday||isSchool)&&e.remindDays>0){
+    const rd=fmtShort(addDays(new Date(e.date+'T12:00:00'),-e.remindDays));
+    const bg=isBday?'#FFF7ED':'#EEEDFE',tc=isBday?'#854F0B':'#3C3489';
+    integration=`<div style="background:${bg};border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:${tc}">
+      <div style="font-weight:700;margin-bottom:4px">${isBday?'🎁 Shopping list reminder':'✅ To-do prep task'}</div>
+      ${isBday?`A gift reminder will appear in the Shopping List <strong>${e.remindDays} days before</strong> (${rd}).`:`A prep task will appear in To-Do <strong>${e.remindDays} days before</strong> (${rd}).`}
+    </div>`;
+  }
+  return`<button class="back-btn" onclick="subview=null;renderMain()">← Calendar</button>
+    <div class="card">
+      <div style="height:6px;background:${col};border-radius:14px 14px 0 0"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="font-size:11px;color:var(--txs);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">${typeLabel}</div>
+        <div style="font-size:22px;margin-bottom:4px">${TYPE_ICON[e.type]||'📌'}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--tx);margin-bottom:8px">${e.title}</div>
+        <div style="font-size:13px;color:var(--txs);margin-bottom:3px">📅 ${fmtDate(new Date(e.date+'T12:00:00'))}</div>
+        ${!e.allDay&&e.startTime?`<div style="font-size:13px;color:var(--txs);margin-bottom:3px">🕐 ${fmtTime(e.startTime)}${e.endTime?' – '+fmtTime(e.endTime):''}</div>`:''}
+        ${e.location?`<div style="font-size:13px;color:var(--txs);margin-bottom:3px">📍 ${e.location}</div>`:''}
+        ${e.notes?`<div style="font-size:13px;color:var(--txs);font-style:italic;margin-bottom:8px">"${e.notes}"</div>`:''}
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">${people}</div>
+      </div>
+    </div>${integration}`;
+}
+function renderCalAdd(){
+  const f=calAddForm;
+  const isBday=f.type==='birthday',isSchool=f.type==='school',showRemind=isBday||isSchool;
+  const rd=f.remindDays||(isBday?30:isSchool?3:0);
+  let remindDate='';
+  if(showRemind&&f.date){try{remindDate=fmtShort(addDays(new Date(f.date+'T12:00:00'),-rd));}catch(e){}}
+  const assigns=Object.entries(S.family).map(([uid,u])=>`
+    <div class="a-chip ${f.assignedTo.includes(uid)?'on':''}" onclick="toggleCalAssign('${uid}')">
+      <div class="a-av" style="background:${u.color}">${u.name[0]}</div>
+      <span class="a-name">${u.name}</span>
+    </div>`).join('');
+  return`<div class="sheet">
+    <div class="shandle"></div>
+    <div class="sheet-title">📅 New event</div>
+    <div class="field"><label>Title</label><input type="text" id="ev-title" value="${f.title}" oninput="calAddForm.title=this.value" placeholder="e.g. Sports Day"/></div>
+    <div class="field"><label>Event type</label><div class="pill-row">
+      ${EVENT_TYPES.map(t=>`<div class="pill ${f.type===t.id?'on':''}" onclick="setCalType('${t.id}')">${t.icon} ${t.label}</div>`).join('')}
+    </div></div>
+    <div class="field"><label>Date</label><input type="date" id="ev-date" value="${f.date}" oninput="calAddForm.date=this.value"/></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--tx)">All day event</span>
+      <div class="tog ${f.allDay?'on':''}" onclick="calAddForm.allDay=!calAddForm.allDay;renderMain()"><div class="tok"></div></div>
+    </div>
+    ${!f.allDay?`<div style="display:flex;gap:8px" class="field">
+      <div style="flex:1"><label>Start</label><input type="time" value="${f.startTime}" oninput="calAddForm.startTime=this.value"/></div>
+      <div style="flex:1"><label>End</label><input type="time" value="${f.endTime}" oninput="calAddForm.endTime=this.value"/></div>
+    </div>`:''}
+    <div class="field"><label>Assign to</label><div class="assign-row">${assigns}</div></div>
+    <div class="field"><label>Location</label><input type="text" value="${f.location}" oninput="calAddForm.location=this.value" placeholder="Optional"/></div>
+    <div class="field"><label>Notes</label><input type="text" value="${f.notes}" oninput="calAddForm.notes=this.value" placeholder="Optional"/></div>
+    ${showRemind?`<div class="remind-box" style="background:${isBday?'#FFF7ED':'#EEEDFE'}">
+      <label style="color:${isBday?'#854F0B':'#3C3489'}">${isBday?'🎁 Shopping list reminder':'✅ To-do prep task'}</label>
+      <p style="color:${isBday?'#854F0B':'#3C3489'}">${isBday?'Gift reminder added this many days before:':'Prep task added this many days before:'}</p>
+      <div class="xp-ctrl">
+        <input type="range" min="1" max="${isBday?90:14}" step="1" value="${rd}" style="accent-color:${isBday?'#E07B3A':'var(--acc)'}" oninput="calAddForm.remindDays=parseInt(this.value);renderMain()"/>
+        <span style="font-size:14px;font-weight:700;color:${isBday?'#854F0B':'var(--acc-d)'};min-width:48px;text-align:right">${rd} days</span>
+      </div>
+      <div class="rd" style="color:${isBday?'#854F0B':'var(--acc-d)'}">${remindDate?'Reminder: '+remindDate:''}</div>
+    </div>`:''}
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="calAddOpen=false;renderMain()">Cancel</button>
+      <button class="btn btn-p" onclick="submitCalEvent()">Add event</button>
+    </div>
+  </div>`;
+}
+function setCalType(t){calAddForm.type=t;calAddForm.remindDays=t==='birthday'?30:t==='school'?3:0;renderMain();}
+function toggleCalAssign(uid){const i=calAddForm.assignedTo.indexOf(uid);if(i>-1){if(calAddForm.assignedTo.length>1)calAddForm.assignedTo.splice(i,1);}else calAddForm.assignedTo.push(uid);renderMain();}
+function submitCalEvent(){
+  const title=(document.getElementById('ev-title')?.value||calAddForm.title).trim();
+  if(!title){showToast('Please add a title');return;}
+  const f=calAddForm;
+  const ne={id:'e'+Date.now(),title,date:f.date,startTime:f.startTime,endTime:f.endTime,allDay:f.allDay,type:f.type,assignedTo:[...f.assignedTo],location:f.location,notes:f.notes,remindDays:f.remindDays||(f.type==='birthday'?30:f.type==='school'?3:0)};
+  S.events.push(ne);
+  calAddOpen=false;
+  const d=new Date(f.date+'T12:00:00');calSelDay=d;calWeekAnchor=d;
+  save();
+  if(ne.type==='birthday'&&ne.remindDays>0) showToast(`🎁 Gift reminder set ${ne.remindDays} days before`);
+  else if(ne.type==='school'&&ne.remindDays>0) showToast(`✅ Prep task set ${ne.remindDays} days before`);
+  else showToast('Event added!');
+  render();
+}
+
+/* ══════════════════════════════════════════
+   MODULE: MEALS
+══════════════════════════════════════════ */
+function renderMeals(){
+  if(mealSubview==='add')   return renderMealAdd();
+  if(mealSubview==='suggest')return renderMealSuggest();
+  if(mealSubview==='requests')return renderMealRequests();
+  if(mealSubview==='request')return renderMealRequest();
+  if(mealSubview==='shopping')return renderMealShopping();
+  return renderMealPlan();
+}
+function renderMealPlan(){
+  const isKid=S.family[S.cur]?.isKid;
+  const pending=(S.mealRequests||[]).filter(r=>r.status==='pending');
+  const planned=Object.values(S.plan).filter(Boolean).length;
+  const total=Object.keys(S.plan).length;
+  function slotHtml(day,type){
+    const slot=`${day}-${type}`;
+    const entry=S.plan[slot];
+    if(entry){
+      const upC=Object.values(entry.votes||{}).filter(v=>v===1).length;
+      const dnC=Object.values(entry.votes||{}).filter(v=>v===-1).length;
+      const myV=entry.votes?.[S.cur]||0;
+      return`<div class="meal-filled ${entry.kidsChoice?'kc':''}">
+        ${entry.kidsChoice?`<div class="kc-label">⭐ Kids' pick</div>`:''}
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
+          <div class="meal-name">${entry.mealName}</div>
+          <div class="meal-acts">
+            <button class="vote-btn ${myV===1?'voted':''}" onclick="mealVote('${slot}',1)">👍</button><span class="vc">${upC||''}</span>
+            <button class="vote-btn ${myV===-1?'voted':''}" onclick="mealVote('${slot}',-1)">👎</button><span class="vc">${dnC||''}</span>
+            ${!isKid?`<button class="clear-x" onclick="clearMealSlot('${slot}')">×</button>`:''}
+          </div>
+        </div>
+      </div>`;
+    }
+    if(isKid) return`<button class="meal-empty" onclick="mealSubview='request';mealReqSlot='${slot}';renderMain()">+ Request a meal…</button>`;
+    return`<button class="meal-empty" onclick="mealSubview='add';mealActiveSlot='${slot}';mealAddTab='free';mealFreeText='';renderMain()">+ Add meal…</button>`;
+  }
+  let html=`<div class="card" style="margin-bottom:10px">
+    <div style="padding:10px 12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:700;color:var(--tx)">Week of 23 June</span>
+        <span style="font-size:11px;color:var(--txs)">${planned}/${total} planned</span>
+      </div>
+      <div style="height:6px;background:rgba(180,160,220,.18);border-radius:6px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(planned/total*100)}%;background:var(--acc);border-radius:6px"></div>
+      </div>
+    </div>
+  </div>`;
+  if(!isKid&&pending.length){
+    html+=`<button class="req-alert" onclick="mealSubview='requests';renderMain()">
+      <span>🍽️ ${pending.length} meal request${pending.length!==1?'s':''} waiting</span>
+      <span style="font-size:16px;color:#E07B3A">›</span>
+    </button>`;
+  }
+  html+=`<div class="card"><div class="chdr">🍽️ Weekday dinners</div><div style="padding:8px 12px 10px">`;
+  WEEKDAYS.forEach(day=>{
+    html+=`<div style="margin-bottom:8px"><div class="day-label">${day}</div>${slotHtml(day,'dinner')}</div>`;
+  });
+  html+=`</div></div><div class="card"><div class="chdr">🌅 Weekend meals</div><div style="padding:8px 12px 10px">`;
+  WEEKEND.forEach(day=>{
+    html+=`<div style="margin-bottom:10px"><div class="day-label wknd">${day}</div>`;
+    ['breakfast','lunch','dinner'].forEach(type=>{
+      html+=`<div class="meal-type-row"><span class="mt-lbl">${type}</span>${slotHtml(day,type)}</div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div></div>`;
+  if(!isKid){
+    html+=`<div class="action-row">
+      <button class="btn btn-p" style="flex:1" onclick="fetchAiSuggestions()">🤖 AI suggestions</button>
+      <button class="btn btn-s" style="flex:1" onclick="buildShopList()">🛒 Shopping list</button>
+    </div>`;
   }
   return html;
 }
-
-function toggleCompleted(){
-  showCompleted = !showCompleted;
-  render();
+function mealVote(slot,val){if(!S.plan[slot])return;const v=S.plan[slot].votes||{};v[S.cur]=v[S.cur]===val?0:val;S.plan[slot].votes=v;save();renderMain();}
+function clearMealSlot(slot){S.plan[slot]=null;save();renderMain();}
+let mealGoalEmoji='🎬',mealGoalCost=200,mealReqSlot='Thu-dinner',mealReqText='';
+function renderMealAdd(){
+  const recipeRows=S.meals.map(m=>`<div class="recipe-row rsep" onclick="addMealToSlot(mealActiveSlot,'${m.name.replace(/'/g,"\\'")}','${m.id}')">
+    <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--tx)">${m.isFav?'⭐ ':''}${m.name}</div><div style="font-size:11px;color:var(--txs)">Last served ${m.lastServed} days ago</div></div>
+    <span style="font-size:18px;color:var(--acc)">+</span>
+  </div>`).join('');
+  return`<div class="add-tabs">
+    <button class="add-tab ${mealAddTab==='free'?'on':''}" onclick="mealAddTab='free';renderMain()">✏️ Type it</button>
+    <button class="add-tab ${mealAddTab==='db'?'on':''}"   onclick="mealAddTab='db';renderMain()">📖 Recipes</button>
+  </div>
+  ${mealAddTab==='free'?`<div class="card"><div class="chdr">Add a meal</div><div style="padding:12px">
+    <div class="field"><label>Meal name</label><input type="text" id="meal-name" value="${mealFreeText}" oninput="mealFreeText=this.value" placeholder="e.g. Chicken pasta bake"/></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--tx)">Save to recipe database</span>
+      <div class="tog ${mealSaveToDb?'on':''}" onclick="mealSaveToDb=!mealSaveToDb;renderMain()"><div class="tok"></div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="mealSubview='plan';renderMain()">Cancel</button>
+      <button class="btn btn-p" onclick="submitMealFree()">Add meal</button>
+    </div>
+  </div></div>`:`<div class="card"><div class="chdr">📖 Recipes (${S.meals.length})</div>${recipeRows}</div>`}`;
 }
-
-/* ─── Toggle task ─── */
-function toggleTask(id){
-  const t = tasks.find(x => x.id===id);
-  if(!t) return;
-  const done = t.completedToday.includes(cur);
-
-  if(done){
-    t.completedToday = t.completedToday.filter(u => u!==cur);
-    if(t.type==='habit'){
-      t.streak[cur] = Math.max(0,(t.streak[cur]||0)-1);
-    }
-    xp[cur] = Math.max(0,(xp[cur]||0) - t.xp);
-  } else {
-    if(t.completionType==='all'){
-      t.completedToday = [...t.assignedTo];
-    } else {
-      t.completedToday.push(cur);
-    }
-    if(t.type==='habit'){
-      const s = (t.streak[cur]||0)+1;
-      t.streak[cur] = s;
-      const bonus = Math.floor(s/7)*2;
-      const earned = t.xp + bonus;
-      xp[cur] = (xp[cur]||0) + earned;
-      showToast(`+${earned} XP${bonus>0?' 🔥 streak bonus!':''}`);
-    } else {
-      xp[cur] = (xp[cur]||0) + t.xp;
-      showToast(`+${t.xp} XP`);
-    }
+function submitMealFree(){
+  const name=(document.getElementById('meal-name')?.value||mealFreeText).trim();
+  if(!name)return;
+  if(mealSaveToDb){S.meals.push({id:'m'+Date.now(),name,isFav:false,lastServed:0});}
+  addMealToSlot(mealActiveSlot,name);
+}
+function addMealToSlot(slot,mealName,mealId=null){
+  S.plan[slot]={mealName,mealId:mealId||'custom',votes:{}};
+  mealSubview='plan';mealFreeText='';mealSaveToDb=false;
+  save();showToast(mealName+' added!');renderMain();
+}
+async function fetchAiSuggestions(){
+  aiLoading=true;aiError='';aiSuggestions=[];mealSubview='suggest';renderMain();
+  const plannedNames=Object.values(S.plan).filter(Boolean).map(p=>p.mealName);
+  const allMeals=S.meals.map(m=>`${m.name}${m.isFav?' (favourite)':''} [last served ${m.lastServed} days ago]`).join('\n');
+  const month=new Date().getMonth();
+  const season=month>=3&&month<=8?'summer':'winter';
+  const prompt=`You are a helpful family meal planner for a busy UK family of 4 (two adults, two kids aged 5 and 7).
+Current week already planned: ${plannedNames.length?plannedNames.join(', '):'Nothing yet'}
+Family meal database:\n${allMeals}
+Rules: Prioritise meals not served in 14+ days. Mark family favourites with isFav:true. It is ${season} in the UK. Mix quick weeknight and weekend-special options. Keep kid-friendly. Do NOT suggest meals already in this week's plan.
+Return ONLY a valid JSON array of exactly 6 objects, no markdown. Each: {"name":"string","reason":"string (max 12 words)","isFav":boolean,"time":"quick"|"medium"|"weekend special"}`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content?.find(b=>b.type==='text')?.text||'[]';
+    aiSuggestions=JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch(e){aiError='Couldn\'t load suggestions right now. Try again or add a meal manually.';}
+  aiLoading=false;renderMain();
+}
+function renderMealSuggest(){
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:16px;font-weight:700;color:var(--tx)">🤖 AI suggestions</div>
+    <button class="btn btn-s" style="padding:6px 12px;font-size:12px" onclick="fetchAiSuggestions()">Refresh</button>
+  </div>`;
+  if(aiLoading){html+=`<div class="card" style="padding:28px 16px;text-align:center"><div style="font-size:28px;margin-bottom:8px">🤔</div><div style="font-size:14px;color:var(--txs);margin-bottom:4px">Thinking about your family's favourites…</div><div class="loading-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>`;}
+  else if(aiError){html+=`<div class="card" style="padding:16px;background:#FFF7ED;border:.5px solid rgba(224,140,80,.2)"><div style="font-size:13px;color:#854F0B;margin-bottom:10px">${aiError}</div><button class="btn btn-p" style="width:100%" onclick="fetchAiSuggestions()">Try again</button></div>`;}
+  else if(aiSuggestions.length){
+    html+=`<div style="font-size:12px;color:var(--txs);margin-bottom:8px">Tap a meal to add it to the next empty slot</div>`;
+    aiSuggestions.forEach(s=>{
+      html+=`<div class="sug-card" onclick="addSuggestion('${s.name.replace(/'/g,"\\'")}')">
+        <div class="sug-body">
+          <div class="sug-icon">${s.isFav?'⭐':'🍽️'}</div>
+          <div class="sug-info"><div class="sug-name">${s.name}</div><div class="sug-reason">${s.reason}</div><span class="sug-tag">${s.time||'meal'}</span></div>
+          <span class="sug-add">+</span>
+        </div>
+      </div>`;
+    });
   }
-
-  document.getElementById('g-xp').textContent = (xp[cur]||0).toLocaleString()+' XP';
-  save();
-  render();
+  html+=`<button class="back-btn" onclick="mealSubview='plan';renderMain()">← Back to plan</button>`;
+  return html;
 }
-
-/* ─── Toast ─── */
-let toastTimer;
-function showToast(msg){
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>el.classList.remove('show'), 2000);
+function addSuggestion(name){
+  const emptySlot=ALL_DAYS.flatMap(d=>getMealTypes(d).map(t=>`${d}-${t}`)).find(k=>!S.plan[k]);
+  if(emptySlot) addMealToSlot(emptySlot,name);
+  else showToast('All slots filled — clear one first!');
 }
-
-function showXpInfo(){
-  showToast('Total XP earned by '+USERS[cur].name);
+function buildShopList(){
+  const planned=Object.values(S.plan).filter(Boolean).map(p=>p.mealName);
+  shopItems=planned.map(m=>({name:'Ingredients for '+m,checked:false}));
+  mealSubview='shopping';renderMain();
 }
-
-function comingSoon(name){
-  showToast(name+' coming soon!');
+function renderMealShopping(){
+  const needed=shopItems.filter(i=>!i.checked).length;
+  return`<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">🛒 Review shopping list</div>
+    <div style="font-size:12px;color:var(--txs);margin-bottom:10px">Tick anything you already have at home</div>
+    <div class="card"><div class="chdr">This week's meals</div>
+      ${shopItems.map((item,i)=>`<div class="shop-item rsep" onclick="shopItems[${i}].checked=!shopItems[${i}].checked;renderMain()">
+        <div class="check ${item.checked?'done':''}"></div>
+        <span style="font-size:13px;color:${item.checked?'var(--txh)':'var(--tx)'};text-decoration:${item.checked?'line-through':'none'}">${item.name}</span>
+      </div>`).join('')}
+    </div>
+    <div style="background:var(--acc-s);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--acc-d);font-weight:700">${needed} item${needed!==1?'s':''} will be sent to Shopping List</div>
+    <div class="btn-row" style="margin-bottom:8px">
+      <button class="btn btn-s" onclick="mealSubview='plan';renderMain()">Cancel</button>
+      <button class="btn btn-p" onclick="confirmShopping()">Confirm & send ✓</button>
+    </div>`;
 }
-
-/* ─── Sheet ─── */
-function openSheet(){
-  fAssigned = [cur];
-  fType='habit'; fRecur='daily'; fVis='shared'; fComp='all';
-  document.getElementById('f-title').value='';
-  document.getElementById('f-xp').value=10;
-  document.getElementById('f-xp-lbl').textContent='10 XP';
-  setType('habit');
-  setVis('shared');
-  setComp('all');
-  document.querySelectorAll('.a-chip').forEach(c=>c.classList.toggle('on',c.dataset.a===cur));
-  document.querySelectorAll('[data-recur]').forEach(p=>p.classList.toggle('on',p.dataset.recur==='daily'));
-  document.getElementById('sheet-overlay').classList.add('open');
-  setTimeout(()=>document.getElementById('f-title').focus(),300);
-}
-
-function closeSheet(){
-  document.getElementById('sheet-overlay').classList.remove('open');
-}
-
-function overlayClick(e){
-  if(e.target===document.getElementById('sheet-overlay')) closeSheet();
-}
-
-function setType(v){
-  fType=v;
-  document.querySelectorAll('[data-type]').forEach(p=>p.classList.toggle('on',p.dataset.type===v));
-  document.getElementById('f-recur').style.display = v==='habit' ? '' : 'none';
-  document.getElementById('f-due').style.display   = v==='todo'  ? '' : 'none';
-  document.getElementById('f-completion-wrap').style.display = fVis==='shared' ? '' : 'none';
-}
-
-function setRecur(v){
-  fRecur=v;
-  document.querySelectorAll('[data-recur]').forEach(p=>p.classList.toggle('on',p.dataset.recur===v));
-}
-
-function setVis(v){
-  fVis=v;
-  document.querySelectorAll('[data-vis]').forEach(p=>p.classList.toggle('on',p.dataset.vis===v));
-  document.getElementById('f-completion-wrap').style.display = v==='shared' ? '' : 'none';
-}
-
-function setComp(v){
-  fComp=v;
-  document.querySelectorAll('[data-comp]').forEach(p=>p.classList.toggle('on',p.dataset.comp===v));
-}
-
-function toggleAssign(a){
-  const i = fAssigned.indexOf(a);
-  if(i>-1){ if(fAssigned.length>1) fAssigned.splice(i,1); }
-  else fAssigned.push(a);
-  document.querySelectorAll('.a-chip').forEach(c=>c.classList.toggle('on',fAssigned.includes(c.dataset.a)));
-}
-
-function addTask(){
-  const title = document.getElementById('f-title').value.trim();
-  if(!title){ document.getElementById('f-title').focus(); return; }
-
-  const xpVal  = parseInt(document.getElementById('f-xp').value)||10;
-  const dateEl = document.getElementById('f-date');
-  const dueRaw = dateEl.value;
-  let dueDate  = null, dueMs = null;
-
-  if(fType==='todo' && dueRaw){
-    const d = new Date(dueRaw);
-    dueDate = d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    dueMs   = d.getTime();
-  }
-
-  const streakInit = {};
-  fAssigned.forEach(u=>{ streakInit[u]=0; });
-
-  const nt = {
-    id: 'u'+Date.now(),
-    type: fType,
-    title,
-    assignedTo: [...fAssigned],
-    visibility: fVis,
-    recurrence: fType==='habit' ? fRecur : null,
-    completionType: fVis==='shared' ? fComp : 'each',
-    xp: xpVal,
-    streak: streakInit,
-    completedToday: [],
-    dueDate,
-    dueMs,
-    overdue: false,
-  };
-
-  tasks.push(nt);
-  save();
-  render();
-  closeSheet();
-  showToast('Task added!');
-}
-
-/* ─── Service worker ─── */
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+function confirmShopping(){const n=shopItems.filter(i=>!i.checked).length;showToast(n+' item'+(n!==1?'s':'')+' sent to Shopping List ✓');mealSubview='plan';renderMain();}
+function renderMealRequests(){
+  const reqs=S.mealRequests||[];
+  let html=`<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:10px">🍽️ Meal requests</div>`;
+  if(!reqs.length) html+=`<div class="card"><div class="empty-state">No requests yet</div></div>`;
+  reqs.forEach(r=>{
+    const u=S.family[r.requestedBy];
+    html+=`<div class="card" style="margin-bottom:8px;border:${r.status==='pending'?'1.5px solid #E07B3A':'0.5px solid var(--gb)'}">
+      <div style="padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:${r.status==='pending'?8:0}px">
+          <div style="width:36px;height:36px;border-radius:9px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:18px">🍽️</div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--tx)">${r.mealName}</div>
+            <div style="font-size:11px;color:var(--txs)">From <strong style="color:${u?.color}">${u?.name}</strong> · ${r.requestedFor.replace('-',' ')}</div>
+          </div>
+          ${r.status!=='pending'?`<span style="font-size:11px;background:${r.status==='approved'?'#E1F5EE':'#FAECE7'};color:${r.status==='approved'?'#085041':'#712B13'};border-radius:6px;padding:2px 8px;font-weight:700">${r.status==='approved'?'Approved':'Declined'}</span>`:''}
+        </div>
+        ${r.status==='pending'?`<div class="btn-row">
+          <button class="btn btn-s" style="flex:1;padding:8px" onclick="declineMealReq('${r.id}')">Decline</button>
+          <button class="btn" style="flex:1;padding:8px;background:#1D9E75;color:#fff" onclick="approveMealReq('${r.id}')">Approve ✓</button>
+        </div>`:''}
+      </div>
+    </div>`;
   });
+  html+=`<button class="back-btn" onclick="mealSubview='plan';renderMain()">← Back to plan</button>`;
+  return html;
+}
+function renderMealRequest(){
+  const emptySlots=ALL_DAYS.flatMap(d=>getMealTypes(d).map(t=>({slot:`${d}-${t}`,label:`${d} ${t}`}))).filter(s=>!S.plan[s.slot]);
+  return`<div class="card"><div class="chdr">🍽️ Request a meal</div><div style="padding:12px">
+    <div class="field"><label>What would you like?</label><input type="text" id="req-meal" value="${mealReqText}" oninput="mealReqText=this.value" placeholder="e.g. Spaghetti Bolognese"/></div>
+    <div class="field"><label>For which meal?</label><select onchange="mealReqSlot=this.value">
+      ${emptySlots.map(s=>`<option value="${s.slot}" ${mealReqSlot===s.slot?'selected':''}>${s.label}</option>`).join('')}
+    </select></div>
+    <div class="info-note">💡 Mum or Dad will approve your request before it goes on the plan.</div>
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="mealSubview='plan';renderMain()">Cancel</button>
+      <button class="btn btn-p" onclick="submitMealReq()">Send request</button>
+    </div>
+  </div></div>`;
+}
+function submitMealReq(){
+  const name=(document.getElementById('req-meal')?.value||mealReqText).trim();
+  if(!name)return;
+  if(!S.mealRequests)S.mealRequests=[];
+  S.mealRequests.unshift({id:'r'+Date.now(),mealName:name,requestedBy:S.cur,requestedFor:mealReqSlot,status:'pending',parentNote:''});
+  mealReqText='';save();showToast('Request sent! 🍽️');mealSubview='plan';renderMain();
+}
+function approveMealReq(id){const r=(S.mealRequests||[]).find(x=>x.id===id);if(!r)return;addMealToSlot(r.requestedFor,r.mealName);S.mealRequests=S.mealRequests.map(x=>x.id===id?{...x,status:'approved'}:x);save();showToast('Approved ✓');renderMain();}
+function declineMealReq(id){S.mealRequests=S.mealRequests.map(x=>x.id===id?{...x,status:'declined'}:x);save();showToast('Declined');renderMain();}
+
+/* ══════════════════════════════════════════
+   MODULE: REWARDS
+══════════════════════════════════════════ */
+function allPending(){return Object.entries(S.goals||{}).flatMap(([uid,gs])=>(gs||[]).filter(g=>g.pending&&g.suggestedBy).map(g=>({...g,ownerUid:uid,ownerName:S.family[uid]?.name,ownerColor:S.family[uid]?.color})));}
+function renderRewards(){
+  if(rewardsTab==='add-goal') return renderAddGoal();
+  if(rewardsTab==='admin')    return renderAdmin();
+  const u=S.family[S.cur]||{};
+  const isKid=u.isKid;
+  const myXp=S.xp[S.cur]||0;
+  const myGoals=(S.goals||{})[S.cur]||[];
+  const sc=S.screenToday[S.cur]||0;
+  const sTarget=u.screenTarget||50;
+  let html='';
+  /* screen time */
+  if(isKid){
+    const pct=Math.min(100,Math.round(sc/sTarget*100)),ok=sc>=sTarget;
+    html+=`<div class="card"><div class="chdr">📺 Today's screen time</div>
+      <div style="padding:10px 14px 14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:13px;font-weight:700;color:var(--tx)">${sc} / ${sTarget} XP today</span><span style="font-size:11px;color:var(--txs)">${pct}%</span>
+        </div>
+        <div class="st-track"><div class="st-fill" style="width:${pct}%;background:${ok?'#1D9E75':u.color}"></div></div>
+        ${ok?`<div style="background:#E1F5EE;border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700;color:#085041">🎉 ${u.screenMins||45} mins screen time unlocked today!</div>`:`<div style="font-size:12px;color:var(--txs)">Earn ${sTarget-sc} more XP to unlock ${u.screenMins||45} mins screen time</div>`}
+      </div>
+    </div>`;
+  }
+  /* goals */
+  html+=`<div class="card"><div class="chdr">🎁 Reward goals</div>
+    ${myGoals.length===0?`<div class="empty-state" style="padding:16px">No goals yet — add one below!</div>`:''}
+    ${myGoals.map(g=>{
+      const pct=Math.min(100,Math.round(myXp/g.cost*100)),can=myXp>=g.cost&&!g.pending;
+      return`<div class="goal-row rsep">
+        <div class="goal-icon">${g.icon}</div>
+        <div class="goal-info">
+          <div class="goal-title-txt">${g.title}${g.pending?`<span class="pending-tag">Pending</span>`:''}</div>
+          <div class="goal-prog"><div class="goal-track"><div class="goal-fill" style="width:${pct}%"></div></div><span class="goal-xp-lbl">${myXp.toLocaleString()} / ${g.cost} XP</span></div>
+        </div>
+        ${g.pending?`<span style="font-size:11px;color:var(--txs)">Awaiting</span>`:`<button class="claim-btn ${can?'ready':'saving'}" onclick="${can?`claimGoal('${g.id}')`:``}">${can?'Claim! 🎉':'Saving'}</button>`}
+      </div>`;
+    }).join('')}
+    <button onclick="rewardsTab='add-goal';renderMain()" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border:none;background:none;cursor:pointer;font-family:inherit;width:100%;font-size:13px;color:var(--acc);font-weight:700;border-top:.5px solid rgba(180,160,220,.1)">
+      ＋ ${isKid?'Suggest a reward…':'Add a reward goal…'}
+    </button>
+  </div>`;
+  /* badges (kids only) */
+  if(isKid){
+    html+=`<div class="card"><div class="chdr">🏅 Badges</div><div class="badge-grid">
+      ${(S.badges||[]).map(b=>`<div class="badge-item"><div class="badge-circle ${b.earned?'earned':'locked'}">${b.e}</div><div class="badge-name">${b.name}</div></div>`).join('')}
+    </div></div>`;
+  }
+  /* admin button */
+  const adminAlert=allPending().length+(S.claimed||[]).filter(c=>!c.honoured).length;
+  html+=`<button onclick="rewardsTab='admin';renderMain()" style="width:100%;padding:12px;border-radius:12px;border:.5px solid var(--gb);background:rgba(255,255,255,.7);color:var(--acc-d);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px">
+    🛡 Parent admin ${adminAlert>0?`<span style="background:#E24B4A;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px">${adminAlert}</span>`:''}
+  </button>`;
+  return html;
+}
+function claimGoal(id){
+  const g=(S.goals[S.cur]||[]).find(x=>x.id===id);if(!g||(S.xp[S.cur]||0)<g.cost)return;
+  S.xp[S.cur]=(S.xp[S.cur]||0)-g.cost;
+  S.goals[S.cur]=(S.goals[S.cur]||[]).filter(x=>x.id!==id);
+  if(!S.claimed)S.claimed=[];
+  const now=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  S.claimed.unshift({id:'c'+Date.now(),title:g.title,icon:g.icon,claimedBy:S.cur,claimedByName:S.family[S.cur]?.name,claimedAt:now,honoured:false});
+  save();
+  document.getElementById('cel-icon').textContent=g.icon;
+  document.getElementById('cel-msg').textContent=`You earned "${g.title}" — well done!`;
+  document.getElementById('celebrate').style.display='flex';
+  render();
+}
+function closeCelebrate(){document.getElementById('celebrate').style.display='none';}
+let newGoalEmoji='🎬',newGoalCost=200;
+function renderAddGoal(){
+  const isKid=S.family[S.cur]?.isKid;
+  return`<div class="sheet">
+    <div class="shandle"></div>
+    <div class="sheet-title">${isKid?'💌 Suggest a reward':'🎯 New reward goal'}</div>
+    <div class="field"><label>Goal name</label><input type="text" id="g-name" placeholder="${isKid?'e.g. Movie night pick':'e.g. Date night'}"/></div>
+    <div class="field"><label>Icon</label><div class="pill-row">
+      ${MEAL_EMOJIS.map(e=>`<div class="pill ${newGoalEmoji===e?'on':''}" onclick="newGoalEmoji='${e}';renderMain()">${e}</div>`).join('')}
+    </div></div>
+    <div class="field"><label>XP cost — <span style="color:var(--acc);font-weight:700">${newGoalCost} XP</span></label>
+      <div class="xp-ctrl"><input type="range" min="50" max="1000" step="50" value="${newGoalCost}" oninput="newGoalCost=parseInt(this.value);renderMain()"/></div>
+    </div>
+    ${isKid?`<div class="info-note">💡 Your suggestion will go to Mum or Dad to approve.</div>`:''}
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="rewardsTab='goals';renderMain()">Cancel</button>
+      <button class="btn btn-p" onclick="submitGoal()">${isKid?'Send suggestion':'Add goal'}</button>
+    </div>
+  </div>`;
+}
+function submitGoal(){
+  const name=document.getElementById('g-name')?.value.trim();if(!name)return;
+  const isKid=S.family[S.cur]?.isKid;
+  const ng={id:'g'+Date.now(),title:name,icon:newGoalEmoji,cost:newGoalCost,...(isKid&&{pending:true,suggestedBy:S.cur,note:''})};
+  if(!S.goals[S.cur])S.goals[S.cur]=[];
+  S.goals[S.cur].push(ng);
+  save();showToast(isKid?'Suggestion sent! 💌':'Goal added!');rewardsTab='goals';renderMain();
+}
+function renderAdmin(){
+  if(!pinUnlocked) return renderPin();
+  const pending=allPending(),unhonoured=(S.claimed||[]).filter(c=>!c.honoured);
+  let html='';
+  if(pending.length){
+    html+=`<div class="card"><div class="chdr" style="background:#FFF7ED;color:#854F0B;border-bottom:.5px solid rgba(224,140,80,.2)">⏳ Pending approval (${pending.length})</div>`;
+    pending.forEach(g=>{
+      html+=`<div style="padding:10px 14px" class="rsep">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:34px;height:34px;border-radius:9px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:18px">${g.icon}</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--tx)">${g.title}</div><div style="font-size:11px;color:var(--txs)">From <strong style="color:${g.ownerColor}">${g.ownerName}</strong> · ${g.cost} XP</div>${g.note?`<div style="font-size:11px;color:#854F0B;font-style:italic">"${g.note}"</div>`:''}</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-s" style="padding:8px" onclick="declineGoal('${g.ownerUid}','${g.id}')">Decline</button>
+          <button class="btn" style="padding:8px;background:#1D9E75;color:#fff" onclick="approveGoal('${g.ownerUid}','${g.id}')">Approve ✓</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  if(unhonoured.length){
+    html+=`<div class="card"><div class="chdr" style="background:var(--acc-s);color:var(--acc-d);border-bottom:.5px solid rgba(127,119,221,.2)">🎉 Rewards to honour (${unhonoured.length})</div>`;
+    unhonoured.forEach(c=>{
+      html+=`<div class="admin-row rsep">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:9px;background:var(--acc-s);display:flex;align-items:center;justify-content:center;font-size:18px">${c.icon}</div>
+          <div><div style="font-size:13px;font-weight:700;color:var(--tx)">${c.title}</div><div style="font-size:11px;color:var(--txs)">Claimed by <strong style="color:${S.family[c.claimedBy]?.color}">${c.claimedByName}</strong> · ${c.claimedAt}</div></div>
+        </div>
+        <button onclick="honourClaim('${c.id}')" style="border:none;border-radius:9px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--acc);color:#fff">Done ✓</button>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  /* XP balances */
+  html+=`<div class="card"><div class="chdr">⭐ XP balances</div>`;
+  Object.entries(S.family).forEach(([uid,u])=>{
+    html+=`<div class="admin-row rsep">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${u.name[0]}</div>
+        <div><div style="font-size:12px;font-weight:700;color:var(--tx)">${u.name}</div><div style="font-size:11px;color:var(--txs)" id="axp-${uid}">${(S.xp[uid]||0).toLocaleString()} XP</div></div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="adj p" onclick="adjXP('${uid}',25)">+</button>
+        <button class="adj m" onclick="adjXP('${uid}',-25)">−</button>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  /* badge toggles */
+  html+=`<div class="card"><div class="chdr">🏅 Auto badges</div>`;
+  Object.entries(S.badgeToggles||{}).forEach(([b,on])=>{
+    html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px" class="rsep">
+      <span style="font-size:13px;color:var(--tx)">${b}</span>
+      <div class="tog ${on?'on':''}" onclick="S.badgeToggles['${b}']=!S.badgeToggles['${b}'];save();renderMain()"><div class="tok"></div></div>
+    </div>`;
+  });
+  html+=`</div>`;
+  html+=`<button onclick="pinUnlocked=false;pinEntry='';rewardsTab='goals';renderMain()" style="width:100%;margin-bottom:12px;padding:11px;border-radius:12px;border:.5px solid var(--gb);background:rgba(240,238,248,.9);color:var(--txs);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔒 Lock admin</button>`;
+  html+=`<button class="back-btn" onclick="rewardsTab='goals';renderMain()">← Back to rewards</button>`;
+  return html;
+}
+function renderPin(){
+  const dots=[0,1,2,3].map(i=>`<div class="pin-dot ${i<pinEntry.length?'filled':''}"></div>`).join('');
+  return`<div class="card"><div style="padding:16px 12px 20px;text-align:center">
+    <div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:3px">Parent admin</div>
+    <div style="font-size:12px;color:var(--txs);margin-bottom:0">Enter PIN · <strong>Demo: 1234</strong></div>
+    <div class="pin-dots">${dots}</div>
+    <div class="pin-pad">
+      ${['1','2','3','4','5','6','7','8','9'].map(k=>`<button class="pkey" onclick="pinKey('${k}')">${k}</button>`).join('')}
+      <button class="pkey" onclick="rewardsTab='goals';renderMain()" style="font-size:13px;color:var(--txs)">Cancel</button>
+      <button class="pkey" onclick="pinKey('0')">0</button>
+      <button class="pkey" onclick="pinEntry=pinEntry.slice(0,-1);renderMain()" style="font-size:14px">⌫</button>
+    </div>
+  </div></div>
+  <button class="back-btn" onclick="rewardsTab='goals';renderMain()">← Back to rewards</button>`;
+}
+function pinKey(k){
+  if(pinEntry.length>=4)return;
+  pinEntry+=k; renderMain();
+  if(pinEntry.length===4){
+    if(pinEntry==='1234'){setTimeout(()=>{pinUnlocked=true;pinEntry='';renderMain();},200);}
+    else{setTimeout(()=>{pinEntry='';showToast('Incorrect PIN');renderMain();},300);}
+  }
+}
+function approveGoal(ownerUid,id){S.goals[ownerUid]=(S.goals[ownerUid]||[]).map(g=>g.id===id?{...g,pending:false,suggestedBy:undefined,note:undefined}:g);save();showToast('Goal approved ✓');renderMain();}
+function declineGoal(ownerUid,id){S.goals[ownerUid]=(S.goals[ownerUid]||[]).filter(g=>g.id!==id);save();showToast('Goal declined');renderMain();}
+function honourClaim(id){S.claimed=S.claimed.map(c=>c.id===id?{...c,honoured:true}:c);save();showToast('Reward honoured ✓');renderMain();}
+function adjXP(uid,amt){S.xp[uid]=Math.max(0,(S.xp[uid]||0)+amt);const el=document.getElementById('axp-'+uid);if(el)el.textContent=(S.xp[uid]||0).toLocaleString()+' XP';if(uid===S.cur){const xd=document.getElementById('xp-display');if(xd)xd.textContent=(S.xp[S.cur]||0).toLocaleString()+' XP';}save();showToast((amt>0?'+':'')+amt+' XP → '+S.family[uid]?.name);}
+
+/* ── Settings ── */
+function settingsPanelHtml(){
+  return`<div class="settings-panel" id="settings-panel">
+    <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px">⚙️ Settings</div>
+    <label style="font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px">Your location (for weather)</label>
+    <input id="loc-inp" class="field" style="width:100%;border:.5px solid rgba(180,160,220,.3);border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);background:rgba(255,255,255,.9);margin-bottom:4px" placeholder="${S.location}"/>
+    <div style="font-size:11px;color:var(--txh);margin-bottom:10px">e.g. Manchester, Leeds, SW1A 1AA</div>
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="toggleSettings()">Cancel</button>
+      <button class="btn btn-p" onclick="saveLocation()">Save</button>
+    </div>
+  </div>`;
+}
+function toggleSettings(){showSettings=!showSettings;renderTopBar();}
+function saveLocation(){const v=document.getElementById('loc-inp')?.value.trim();if(v){S.location=v;save();showToast('Location saved: '+v);}showSettings=false;renderTopBar();}
+
+/* ── Add family member (from dashboard) ── */
+let newMemberName='',newMemberColour='#E07B3A',newMemberIsKid=false,newMemberEmoji='';
+function renderMain_addMember(){
+  return`<button class="back-btn" onclick="subview=null;renderMain()">← Dashboard</button>
+    <div class="card"><div class="chdr">👤 Add family member</div><div style="padding:14px">
+      <div class="field"><label>Name</label><input type="text" id="nm-inp" value="${newMemberName}" oninput="newMemberName=this.value" placeholder="e.g. Grandma, Jake…"/></div>
+      <div class="field"><label>Colour</label><div class="colour-row">
+        ${COLOURS.map(c=>`<div class="swatch ${newMemberColour===c?'sel':''}" style="background:${c}" onclick="newMemberColour='${c}';renderMain()"></div>`).join('')}
+      </div></div>
+      <div class="field"><label>Emoji icon (optional)</label><input type="text" id="em-inp" value="${newMemberEmoji}" oninput="newMemberEmoji=this.value" placeholder="e.g. 🐶 🦊 🌟" style="font-size:20px"/></div>
+      <div class="tog-row" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--tx)">This is a child (enables screen time + badges)</span>
+        <div class="tog ${newMemberIsKid?'on':''}" onclick="newMemberIsKid=!newMemberIsKid;renderMain()"><div class="tok"></div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-s" onclick="subview=null;renderMain()">Cancel</button>
+        <button class="btn btn-p" onclick="submitNewMember()">Add member</button>
+      </div>
+    </div></div>`;
+}
+function submitNewMember(){
+  const nm=(document.getElementById('nm-inp')?.value||newMemberName).trim();if(!nm){showToast('Please enter a name');return;}
+  const uid=nm.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+  S.family[uid]={name:nm,color:newMemberColour,soft:newMemberColour+'22',dark:newMemberColour,isKid:newMemberIsKid,...(newMemberEmoji&&{emoji:newMemberEmoji}),...(newMemberIsKid&&{screenTarget:50,screenMins:45})};
+  S.xp[uid]=0;if(newMemberIsKid)S.screenToday[uid]=0;
+  newMemberName='';newMemberEmoji='';newMemberIsKid=false;newMemberColour='#E07B3A';
+  subview=null;save();showToast(nm+' added to the family! 👋');render();
 }
 
-/* ─── Boot ─── */
+/* Override renderMain for subview='addmember' */
+const _origRenderMain=renderMain;
+window.renderMain=function(){
+  clearTimeout(clockRAF);
+  const m=document.getElementById('main');
+  if(subview==='addmember'){m.innerHTML=renderMain_addMember();return;}
+  if(S.module==='dashboard') m.innerHTML=renderDashboard();
+  else if(S.module==='tasks')    m.innerHTML=renderTasks();
+  else if(S.module==='calendar') m.innerHTML=renderCalendar();
+  else if(S.module==='meals')    m.innerHTML=renderMeals();
+  else if(S.module==='rewards')  m.innerHTML=renderRewards();
+  if(S.module==='dashboard') tickClock();
+};
+
+/* ── Navigation ── */
+function setModule(mod){
+  S.module=mod;subview=null;
+  addTaskOpen=false;calAddOpen=false;mealSubview='plan';rewardsTab='goals';
+  save();render();
+}
+function setUser(uid){S.cur=uid;save();render();}
+
+/* ── Service worker ── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+
+/* ── Boot ── */
 load();
-switchUser(cur);
+animGrad();
+render();
 </script>
 </body>
 </html>
